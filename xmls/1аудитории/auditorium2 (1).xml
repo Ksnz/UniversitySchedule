@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<auditorium>
+    <room>2</room>
+    <housing>1</housing>
+    <capacity>22</capacity>
+</auditorium>

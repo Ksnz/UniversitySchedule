@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group>
+    <groupId>502443</groupId>
+    <faculty>
+        <fullName>Факультет заочного обучения</fullName>
+        <id>0</id>
+        <shortName>ФЗО</shortName>
+    </faculty>
+</group>

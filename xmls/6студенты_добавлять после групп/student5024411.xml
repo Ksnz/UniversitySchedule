@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<student>
+    <studentId>5024411</studentId>
+    <firstName>Алексей</firstName>
+    <lastName>Ксёнжик</lastName>
+    <patronymic>Геннадьевич</patronymic>
+    <birthDay>1992-02-06</birthDay>
+    <group>
+        <groupId>502441</groupId>
+        <faculty>
+            <fullName>Факультет заочного обучения</fullName>
+            <id>0</id>
+            <shortName>ФЗО</shortName>
+        </faculty>
+    </group>
+</student>

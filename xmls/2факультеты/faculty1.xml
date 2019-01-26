@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<faculty>
+    <fullName>Факультет компьютерного проектирования</fullName>
+    <id>1</id>
+    <shortName>ФКП</shortName>
+</faculty>

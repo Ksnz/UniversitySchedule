@@ -1,0 +1,191 @@
+package com.github.index.schedule.controllers;
+
+import com.github.index.schedule.data.dao.CourseDAO;
+import com.github.index.schedule.data.entity.Course;
+import com.github.index.schedule.data.utils.StringUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.log4j.Logger;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
+
+import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+
+
+@WebServlet(
+        name = "CourseServlet",
+        urlPatterns = "/view/courses")
+public class CourseServlet extends HttpServlet {
+
+    //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
+    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
+    static Logger LOGGER = Logger.getLogger(CourseServlet.class);
+
+    private int pageNumber = 1;
+    private int pageCount;
+    private static final int PER_PAGE = 5;
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        CourseDAO dao = new CourseDAO(entityManager);
+        long count = dao.count();
+        String pageParameter = request.getParameter("page");
+        if (count > 0) {
+            count--;
+        }
+        pageCount = (int) (count / PER_PAGE + 1);
+        if (pageParameter != null) {
+            try {
+                pageNumber = Integer.parseInt(pageParameter);
+            } catch (Exception e) {
+                LOGGER.warn("Ошибка парсинга номера страницы", e);
+            }
+        }
+        if (pageNumber > pageCount) {
+            pageNumber = pageCount;
+        }
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        String action = request.getParameter("action");
+        if ("insert".equalsIgnoreCase(action)) {
+            RequestDispatcher view = request.getRequestDispatcher("course.jsp");
+            view.forward(request, response);
+        } else {
+            request.setAttribute("courses", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("pageNumber", pageNumber);
+            request.setAttribute("pageCount", pageCount);
+            RequestDispatcher view = request.getRequestDispatcher("courses.jsp");
+            view.forward(request, response);
+        }
+        entityManager.close();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        CourseDAO dao = new CourseDAO(entityManager);
+        String action = request.getParameter("action");
+        //PrintWriter output = response.getWriter();
+        String path = "courses.jsp";
+        if (action != null) {
+            Optional<Integer> courseId;
+            String courseIdIdvalue = request.getParameter("courseId");
+            if (courseIdIdvalue != null && !courseIdIdvalue.isEmpty()) {
+                Integer id = null;
+                try {
+                    id = Integer.parseInt(courseIdIdvalue);
+                } catch (Exception e) {
+                    LOGGER.warn("Ошибка парсинга ид предмета", e);
+                }
+                courseId = Optional.ofNullable(id);
+            } else {
+                courseId = Optional.empty();
+            }
+            if (action.equalsIgnoreCase("delete")) {
+                courseId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteCourse));
+            } else if (action.equalsIgnoreCase("edit")) {
+                courseId.ifPresent(character -> dao.find(character).ifPresent(course -> {
+                    request.setAttribute("course", course);
+                }));
+                path = "course.jsp";
+            } else if (action.equalsIgnoreCase("create")) {
+                if (courseId.isPresent()) {
+                    String shortName = request.getParameter("shortName");
+                    String fullName = request.getParameter("fullName");
+                    if (isNullOrEmpty(shortName) || isNullOrEmpty(fullName)) {
+                        request.setAttribute("message", "Пустое полное название предмета: " + shortName + " или его аббревитатура: " + fullName);
+                        path = "error.jsp";
+                    } else {
+                        Optional<Course> course = dao.find(courseId.get());
+                        if (course.isPresent()) {
+                            dao.updateCourse(course.get(), courseId.get(), shortName, fullName);
+                        } else {
+                            dao.createCourse(courseId.get(), shortName, fullName);
+                        }
+                    }
+                } else {
+                    request.setAttribute("message", "Указан неправильный код предмета: " + courseIdIdvalue);
+                    path = "error.jsp";
+                }
+            } else if (action.equalsIgnoreCase("serialize")) {
+                if (courseId.isPresent()) {
+                    Optional<Course> courseOptional = dao.find(courseId.get());
+                    courseOptional.ifPresent(course1 -> {
+                        try (ServletOutputStream out = response.getOutputStream()) {
+
+                            JAXBContext jaxbContext = JAXBContext.newInstance(Course.class);
+
+                            Marshaller marshaller = jaxbContext.createMarshaller();
+                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                            marshaller.marshal(course1, out);
+                            response.setContentType("application/xml");
+                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "course" + courseId.get() + ".xml");
+                            out.flush();
+                        } catch (IOException | JAXBException e) {
+                            LOGGER.warn("Ошибка создания файла", e);
+                        }
+                    });
+                }
+            } else if (action.equalsIgnoreCase("upload")) {
+                try {
+                    ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+                    List<FileItem> fileItems = upload.parseRequest(request);
+                    JAXBContext jaxbContext = JAXBContext.newInstance(Course.class);
+                    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                    for (FileItem fileItem : fileItems) {
+                        Course course;
+                        try (InputStream inputStream = fileItem.getInputStream()) {
+                            course = (Course) jaxbUnmarshaller.unmarshal(inputStream);
+                        }
+                        Optional<Course> old = dao.find(course.getId());
+                        if (old.isPresent()) {
+                            dao.update(course);
+                        } else {
+                            dao.put(course);
+                        }
+                    }
+                } catch (JAXBException | FileUploadException e) {
+                    //output.println("Ошибка загрузки файла: " + e.getLocalizedMessage());
+                    LOGGER.warn("Ошибка чтения загруженного файла", e);
+                    request.setAttribute("message", "Ошибка чтения файла: " + e.getLocalizedMessage());
+                    path = "error.jsp";
+                    //path = "";
+                }
+            }
+        }
+        if (path.equals("courses.jsp")) {
+            request.setAttribute("courses", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("pageNumber", pageNumber);
+            request.setAttribute("pageCount", pageCount);
+        }
+        if (!path.isEmpty()) {
+            RequestDispatcher view = request.getRequestDispatcher(path);
+            view.forward(request, response);
+        }
+        entityManager.close();
+    }
+}

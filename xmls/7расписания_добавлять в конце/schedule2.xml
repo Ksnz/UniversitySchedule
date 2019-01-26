@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<scheduleEntry>
+    <id>2</id>
+    <lecturer>
+        <lecturerId>500000</lecturerId>
+        <firstName>Иван</firstName>
+        <lastName>Иванов</lastName>
+        <patronymic>Иванович</patronymic>
+        <birthDay>1976-06-05</birthDay>
+    </lecturer>
+    <auditorium>
+        <room>1</room>
+        <housing>1</housing>
+        <capacity>21</capacity>
+    </auditorium>
+    <course>
+        <id>2</id>
+        <shortName>ВМ</shortName>
+        <fullName>Высшая математика</fullName>
+    </course>
+    <groups>
+        <groupId>502442</groupId>
+        <faculty>
+            <fullName>Факультет заочного обучения</fullName>
+            <id>0</id>
+            <shortName>ФЗО</shortName>
+        </faculty>
+    </groups>
+    <groups>
+        <groupId>502441</groupId>
+        <faculty>
+            <fullName>Факультет заочного обучения</fullName>
+            <id>0</id>
+            <shortName>ФЗО</shortName>
+        </faculty>
+    </groups>
+    <dayOfWeek>FRIDAY</dayOfWeek>
+    <weekNumber>1</weekNumber>
+    <startTime>09:00</startTime>
+    <endTime>10:00</endTime>
+</scheduleEntry>

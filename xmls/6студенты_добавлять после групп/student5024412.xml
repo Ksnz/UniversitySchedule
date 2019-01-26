@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<student>
+    <studentId>5024412</studentId>
+    <firstName>Екатерина</firstName>
+    <lastName>Ксёнжик</lastName>
+    <patronymic>Геннадьевна</patronymic>
+    <birthDay>1995-03-11</birthDay>
+    <group>
+        <groupId>502441</groupId>
+        <faculty>
+            <fullName>Факультет заочного обучения</fullName>
+            <id>0</id>
+            <shortName>ФЗО</shortName>
+        </faculty>
+    </group>
+</student>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lecturer>
+    <lecturerId>500000</lecturerId>
+    <firstName>Иван</firstName>
+    <lastName>Иванов</lastName>
+    <patronymic>Иванович</patronymic>
+    <birthDay>1976-06-05</birthDay>
+</lecturer>
