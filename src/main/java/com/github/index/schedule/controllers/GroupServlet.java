@@ -32,6 +32,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+
 
 @WebServlet(
         name = "GroupServlet",
@@ -53,18 +55,12 @@ public class GroupServlet extends HttpServlet {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         GroupDAO dao = new GroupDAO(entityManager);
         long count = dao.count();
-        String pageParameter = request.getParameter("page");
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -95,26 +91,8 @@ public class GroupServlet extends HttpServlet {
         String action = request.getParameter("action");
         String path = "groups.jsp";
         if (action != null) {
-            Optional<Integer> groupId;
-            String groupIdvalue = request.getParameter("groupId");
-            if (groupIdvalue != null && !groupIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(groupIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид группы", e);
-                }
-                groupId = Optional.ofNullable(id);
-            } else {
-                groupId = Optional.empty();
-            }
-            Optional<Character> facultyId;
-            String facultyIdvalue = request.getParameter("facultyId");
-            if (facultyIdvalue != null && !facultyIdvalue.isEmpty()) {
-                facultyId = Optional.of(facultyIdvalue.charAt(0));
-            } else {
-                facultyId = Optional.empty();
-            }
+            Optional<Integer> groupId = getParameterIfPresent(request, "groupId", Integer.class);
+            Optional<Character> facultyId = getParameterIfPresent(request, "facultyId", Character.class);
             if (action.equalsIgnoreCase("delete")) {
                 groupId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteGroup));
             } else if (action.equalsIgnoreCase("edit")) {
@@ -130,14 +108,14 @@ public class GroupServlet extends HttpServlet {
                         dao.updateGroup(group.get(), groupId.get(), faculty.get());
                     } else {
                         if (!faculty.isPresent()) {
-                            request.setAttribute("message", "Несуществующий код факультета: " + facultyIdvalue);
+                            request.setAttribute("message", "Несуществующий код факультета: " + facultyId.get());
                             path = "error.jsp";
                         } else {
                             dao.createGroup(groupId.get(), faculty.get());
                         }
                     }
                 } else {
-                    request.setAttribute("message", "Неправильный код группы: " + groupIdvalue + " или факультета: " + facultyIdvalue);
+                    request.setAttribute("message", "Неправильный код группы: " + request.getParameter("groupId") + " или факультета: " + request.getParameter("facultyId"));
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {

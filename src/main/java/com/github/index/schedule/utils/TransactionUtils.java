@@ -1,4 +1,4 @@
-package com.github.index.schedule.data.utils;
+package com.github.index.schedule.utils;
 
 import org.apache.log4j.Logger;
 

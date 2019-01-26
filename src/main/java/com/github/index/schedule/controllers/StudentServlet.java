@@ -31,7 +31,8 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 
 
 @WebServlet(
@@ -52,18 +53,12 @@ public class StudentServlet extends HttpServlet {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         StudentDAO dao = new StudentDAO(entityManager);
         long count = dao.count();
-        String pageParameter = request.getParameter("page");
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -94,32 +89,8 @@ public class StudentServlet extends HttpServlet {
         String action = request.getParameter("action");
         String path = "students.jsp";
         if (action != null) {
-            Optional<Integer> studentId;
-            Optional<Integer> groupId;
-            String studentIdvalue = request.getParameter("studentId");
-            String groupIdvalue = request.getParameter("groupId");
-            if (studentIdvalue != null && !studentIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(studentIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид студента", e);
-                }
-                studentId = Optional.ofNullable(id);
-            } else {
-                studentId = Optional.empty();
-            }
-            if (groupIdvalue != null && !groupIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(groupIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид студента", e);
-                }
-                groupId = Optional.ofNullable(id);
-            } else {
-                groupId = Optional.empty();
-            }
+            Optional<Integer> studentId = getParameterIfPresent(request, "studentId", Integer.class);
+            Optional<Integer> groupId = getParameterIfPresent(request, "groupId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
                 studentId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteStudent));
             } else if (action.equalsIgnoreCase("edit")) {
@@ -153,28 +124,23 @@ public class StudentServlet extends HttpServlet {
                         }
                     }
                 } else {
-                    request.setAttribute("message", "Неправильный код группы: " + groupIdvalue + " или номер студенческого: " + studentIdvalue);
+                    request.setAttribute("message", "Неправильный код группы: " + request.getParameter("groupId") + " или номер студенческого: " + request.getParameter("studentId"));
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
-                if (studentId.isPresent()) {
-                    Optional<Student> studentOptional = dao.find(studentId.get());
-                    studentOptional.ifPresent(student1 -> {
-                        try (ServletOutputStream out = response.getOutputStream()) {
-
-                            JAXBContext jaxbContext = JAXBContext.newInstance(Student.class);
-
-                            Marshaller marshaller = jaxbContext.createMarshaller();
-                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                            marshaller.marshal(student1, out);
-                            response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "student" + studentId.get() + ".xml");
-                            out.flush();
-                        } catch (IOException | JAXBException e) {
-                            LOGGER.warn("Ошибка создания файла", e);
-                        }
-                    });
-                }
+                studentId.ifPresent(integer -> dao.find(integer).ifPresent(student1 -> {
+                    try (ServletOutputStream out = response.getOutputStream()) {
+                        JAXBContext jaxbContext = JAXBContext.newInstance(Student.class);
+                        Marshaller marshaller = jaxbContext.createMarshaller();
+                        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                        marshaller.marshal(student1, out);
+                        response.setContentType("application/xml");
+                        response.setHeader("Content-Disposition", "attachment; filename=\"" + "student" + integer + ".xml");
+                        out.flush();
+                    } catch (IOException | JAXBException e) {
+                        LOGGER.warn("Ошибка создания файла", e);
+                    }
+                }));
             } else if (action.equalsIgnoreCase("upload")) {
                 try {
                     ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());

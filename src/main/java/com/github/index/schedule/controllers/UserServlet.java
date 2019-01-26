@@ -3,8 +3,6 @@ package com.github.index.schedule.controllers;
 import com.github.index.schedule.data.dao.GroupDAO;
 import com.github.index.schedule.data.dao.LecturerDAO;
 import com.github.index.schedule.data.dao.ScheduleEntryDAO;
-import com.github.index.schedule.data.entity.Group;
-import com.github.index.schedule.data.entity.Lecturer;
 import com.github.index.schedule.data.entity.ScheduleEntry;
 import org.apache.log4j.Logger;
 
@@ -20,7 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 
 @WebServlet(
         name = "UserServlet",
@@ -42,9 +41,9 @@ public class UserServlet extends HttpServlet {
         LecturerDAO lecturerDAO = new LecturerDAO(entityManager);
         ScheduleEntryDAO scheduleEntryDAO = new ScheduleEntryDAO(entityManager);
         String action = request.getParameter("action");
-        String idValue = request.getParameter("id");
+        Optional<Integer> id = getParameterIfPresent(request, "id", Integer.class);
         if ("group".equalsIgnoreCase(action)) {
-            parseInteger(idValue).ifPresent(integer -> groupDAO.find(integer).ifPresent(groupEntry -> {
+            id.ifPresent(integer -> groupDAO.find(integer).ifPresent(groupEntry -> {
                 List<ScheduleEntry> schedulesForGroup = scheduleEntryDAO.findForGroup(groupEntry);
                 schedulesForGroup.sort(Comparator.comparing(ScheduleEntry::getDayOfWeek));
                 request.setAttribute("schedules", schedulesForGroup);
@@ -64,26 +63,9 @@ public class UserServlet extends HttpServlet {
                 });
             }
         }
-
         RequestDispatcher view = request.getRequestDispatcher(path);
         view.forward(request, response);
         entityManager.close();
-    }
-
-    private Optional<Integer> parseInteger(String idValue) {
-        Optional<Integer> groupId;
-        if (idValue != null && !idValue.isEmpty()) {
-            Integer id = null;
-            try {
-                id = Integer.parseInt(idValue);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга ид", e);
-            }
-            groupId = Optional.ofNullable(id);
-        } else {
-            groupId = Optional.empty();
-        }
-        return groupId;
     }
 
 }

@@ -27,7 +27,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 
 
 @WebServlet(
@@ -49,19 +50,13 @@ public class FacultyServlet extends HttpServlet {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         FacultyDAO dao = new FacultyDAO(entityManager);
-        String pageParameter = request.getParameter("page");
         long count = dao.count();
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -92,13 +87,7 @@ public class FacultyServlet extends HttpServlet {
         //PrintWriter output = response.getWriter();
         String path = "faculties.jsp";
         if (action != null) {
-            Optional<Character> characterId;
-            String facultyId = request.getParameter("facultyId");
-            if (facultyId != null && !facultyId.isEmpty()) {
-                characterId = Optional.of(facultyId.charAt(0));
-            } else {
-                characterId = Optional.empty();
-            }
+            Optional<Character> characterId = getParameterIfPresent(request, "facultyId", Character.class);
             if (action.equalsIgnoreCase("delete")) {
                 characterId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteFaculty));
             } else if (action.equalsIgnoreCase("edit")) {
@@ -122,7 +111,7 @@ public class FacultyServlet extends HttpServlet {
                         }
                     }
                 } else {
-                    request.setAttribute("message", "Неправильный код факультета: " + facultyId);
+                    request.setAttribute("message", "Неправильный код факультета: " + request.getParameter("facultyId"));
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
@@ -137,7 +126,7 @@ public class FacultyServlet extends HttpServlet {
                             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                             marshaller.marshal(faculty1, out);
                             response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "faculty" + facultyId + ".xml");
+                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "faculty" + characterId.get() + ".xml");
                             out.flush();
                         } catch (IOException | JAXBException e) {
                             LOGGER.warn("Ошибка создания файла", e);

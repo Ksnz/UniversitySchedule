@@ -11,7 +11,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
 
-import static com.github.index.schedule.data.utils.TransactionUtils.rollBackSilently;
+import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
 
 public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {

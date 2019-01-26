@@ -24,13 +24,13 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 
 
 @WebServlet(
@@ -52,19 +52,13 @@ public class LecturerServlet extends HttpServlet {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         LecturerDAO dao = new LecturerDAO(entityManager);
-        String pageParameter = request.getParameter("page");
         long count = dao.count();
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -95,19 +89,7 @@ public class LecturerServlet extends HttpServlet {
         //PrintWriter output = response.getWriter();
         String path = "lecturers.jsp";
         if (action != null) {
-            Optional<Integer> lecturerId;
-            String lecturerIdvalue = request.getParameter("lecturerId");
-            if (lecturerIdvalue != null && !lecturerIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(lecturerIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид преподавателя", e);
-                }
-                lecturerId = Optional.ofNullable(id);
-            } else {
-                lecturerId = Optional.empty();
-            }
+            Optional<Integer> lecturerId = getParameterIfPresent(request, "lecturerId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
                 lecturerId.ifPresent(id -> dao.find(id).ifPresent(dao::deleteLecturer));
             } else if (action.equalsIgnoreCase("edit")) {

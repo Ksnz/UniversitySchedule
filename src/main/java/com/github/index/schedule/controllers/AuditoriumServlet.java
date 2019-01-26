@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
 
 @WebServlet(
         name = "AuditoriumServlet",
@@ -49,18 +51,12 @@ public class AuditoriumServlet extends HttpServlet {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         AuditoriumDAO dao = new AuditoriumDAO(entityManager);
         long count = dao.count();
-        String pageParameter = request.getParameter("page");
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -90,32 +86,8 @@ public class AuditoriumServlet extends HttpServlet {
         String action = request.getParameter("action");
         String path = "auditoriums.jsp";
         if (action != null) {
-            Optional<Integer> auditoriumRoom;
-            String auditoriumIdRoomValue = request.getParameter("auditoriumIdRoom");
-            if (auditoriumIdRoomValue != null && !auditoriumIdRoomValue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(auditoriumIdRoomValue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид комнаты аудитории", e);
-                }
-                auditoriumRoom = Optional.ofNullable(id);
-            } else {
-                auditoriumRoom = Optional.empty();
-            }
-            Optional<Integer> auditoriumHousing;
-            String auditoriumIdHousingValue = request.getParameter("auditoriumIdHousing");
-            if (auditoriumIdHousingValue != null && !auditoriumIdHousingValue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(auditoriumIdHousingValue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид корпуса аудитории", e);
-                }
-                auditoriumHousing = Optional.ofNullable(id);
-            } else {
-                auditoriumHousing = Optional.empty();
-            }
+            Optional<Integer> auditoriumRoom = getParameterIfPresent(request, "auditoriumIdRoom", Integer.class);
+            Optional<Integer> auditoriumHousing = getParameterIfPresent(request, "auditoriumIdHousing", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
                 if (auditoriumRoom.isPresent() && auditoriumHousing.isPresent()) {
                     AuditoriumKey key = new AuditoriumKey();
@@ -138,12 +110,7 @@ public class AuditoriumServlet extends HttpServlet {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());
                     key.setHousing(auditoriumHousing.get());
-                    int capacity = -1;
-                    try {
-                        capacity = Integer.parseInt(request.getParameter("capacity"));
-                    } catch (Exception e) {
-                        LOGGER.warn("Ошибка парсинга вместимости аудитории", e);
-                    }
+                    int capacity = getParameterIfPresent(request, "capacity", Integer.class).orElse(-1);
                     if (capacity > 0) {
                         Optional<Auditorium> auditorium = dao.find(key);
                         if (auditorium.isPresent()) {
@@ -156,7 +123,7 @@ public class AuditoriumServlet extends HttpServlet {
                         path = "error.jsp";
                     }
                 } else {
-                    request.setAttribute("message", "Неправильное значение номера корпуса: " + auditoriumIdHousingValue + " или аудитории: " + auditoriumIdRoomValue);
+                    request.setAttribute("message", "Неправильное значение номера аудитории: " + request.getParameter("auditoriumIdRoom") + " или корпуса: " + request.getParameter("auditoriumIdHousing"));
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {

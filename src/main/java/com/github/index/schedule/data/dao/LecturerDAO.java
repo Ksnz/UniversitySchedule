@@ -1,6 +1,5 @@
 package com.github.index.schedule.data.dao;
 
-import com.github.index.schedule.data.entity.Group;
 import com.github.index.schedule.data.entity.Lecturer;
 import org.apache.log4j.Logger;
 
@@ -13,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.TransactionUtils.rollBackSilently;
+import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
 public class LecturerDAO extends AbstractDAO<Lecturer, Integer> {
 

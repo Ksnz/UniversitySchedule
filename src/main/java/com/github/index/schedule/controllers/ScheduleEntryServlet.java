@@ -29,7 +29,8 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.index.schedule.data.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 
 @WebServlet(
         name = "ScheduleEntryServlet",
@@ -49,18 +50,12 @@ public class ScheduleEntryServlet extends HttpServlet {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         ScheduleEntryDAO dao = new ScheduleEntryDAO(entityManager);
         long count = dao.count();
-        String pageParameter = request.getParameter("page");
+        Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
         }
         pageCount = (int) (count / PER_PAGE + 1);
-        if (pageParameter != null) {
-            try {
-                pageNumber = Integer.parseInt(pageParameter);
-            } catch (Exception e) {
-                LOGGER.warn("Ошибка парсинга номера страницы", e);
-            }
-        }
+        pageParameter.ifPresent(integer -> pageNumber = integer);
         if (pageNumber > pageCount) {
             pageNumber = pageCount;
         }
@@ -90,68 +85,20 @@ public class ScheduleEntryServlet extends HttpServlet {
         String action = request.getParameter("action");
         String path = "scheduleentries.jsp";
         if (action != null) {
-            Optional<Integer> scheduleId;
-            String scheduleentryIdvalue = request.getParameter("scheduleentryId");
-            if (scheduleentryIdvalue != null && !scheduleentryIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(scheduleentryIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид расписания", e);
-                }
-                scheduleId = Optional.ofNullable(id);
-            } else {
-                scheduleId = Optional.empty();
-            }
-            Optional<Integer> lecturerId;
-            String lecturerIdvalue = request.getParameter("lecturerId");
-            if (lecturerIdvalue != null && !lecturerIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(lecturerIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид преподавателя", e);
-                }
-                lecturerId = Optional.ofNullable(id);
-            } else {
-                lecturerId = Optional.empty();
-            }
+            Optional<Integer> scheduleId = getParameterIfPresent(request, "scheduleentryId", Integer.class);
+            Optional<Integer> lecturerId = getParameterIfPresent(request, "lecturerId", Integer.class);
             Optional<AuditoriumKey> auditoriumKey;
-            String auditoriumIdRoomvalue = request.getParameter("auditoriumIdRoom");
-            String auditoriumIdHousingvalue = request.getParameter("auditoriumIdHousing");
-            if (auditoriumIdRoomvalue != null && !auditoriumIdRoomvalue.isEmpty() && auditoriumIdHousingvalue != null && !auditoriumIdHousingvalue.isEmpty()) {
-                Integer id1 = null;
-                Integer id2 = null;
-                try {
-                    id1 = Integer.parseInt(auditoriumIdRoomvalue);
-                    id2 = Integer.parseInt(auditoriumIdHousingvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид аудитории", e);
-                }
-                if (id1 != null && id2 != null) {
-                    AuditoriumKey key = new AuditoriumKey();
-                    key.setRoom(id1);
-                    key.setHousing(id2);
-                    auditoriumKey = Optional.of(key);
-                } else {
-                    auditoriumKey = Optional.empty();
-                }
+            Optional<Integer> auditoriumIdRoom = getParameterIfPresent(request, "auditoriumIdRoom", Integer.class);
+            Optional<Integer> auditoriumIdHousing = getParameterIfPresent(request, "auditoriumIdHousing", Integer.class);
+            if (auditoriumIdRoom.isPresent() && auditoriumIdHousing.isPresent()) {
+                AuditoriumKey key = new AuditoriumKey();
+                key.setRoom(auditoriumIdRoom.get());
+                key.setHousing(auditoriumIdHousing.get());
+                auditoriumKey = Optional.of(key);
             } else {
                 auditoriumKey = Optional.empty();
             }
-            Optional<Integer> courseId;
-            String courseIdvalue = request.getParameter("courseId");
-            if (courseIdvalue != null && !courseIdvalue.isEmpty()) {
-                Integer id = null;
-                try {
-                    id = Integer.parseInt(courseIdvalue);
-                } catch (Exception e) {
-                    LOGGER.warn("Ошибка парсинга ид предмета", e);
-                }
-                courseId = Optional.ofNullable(id);
-            } else {
-                courseId = Optional.empty();
-            }
+            Optional<Integer> courseId = getParameterIfPresent(request, "courseId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
                 scheduleId.ifPresent(entry -> dao.find(entry).ifPresent(dao::deleteScheduleEntry));
             } else if (action.equalsIgnoreCase("edit")) {
@@ -226,7 +173,7 @@ public class ScheduleEntryServlet extends HttpServlet {
                         }
                     }
                 } else {
-                    request.setAttribute("message", "Неправильный код аудитории: " + auditoriumIdRoomvalue + " корпуса: " + auditoriumIdHousingvalue + " преподавателя: " + lecturerIdvalue + " или предмета: " + courseIdvalue);
+                    request.setAttribute("message", "Неправильный код аудитории: " + request.getParameter("auditoriumIdRoom") + " корпуса: " + request.getParameter("auditoriumIdHousing") + " преподавателя: " + request.getParameter("lecturerId") + " или предмета: " + request.getParameter("courseId"));
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {

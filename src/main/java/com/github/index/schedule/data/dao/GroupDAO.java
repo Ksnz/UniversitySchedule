@@ -2,18 +2,16 @@ package com.github.index.schedule.data.dao;
 
 import com.github.index.schedule.data.entity.Faculty;
 import com.github.index.schedule.data.entity.Group;
-import lombok.NonNull;
 import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.TransactionUtils.rollBackSilently;
+import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
 public class GroupDAO extends AbstractDAO<Group, Integer> {
     private static final Logger LOGGER = Logger.getLogger(GroupDAO.class);

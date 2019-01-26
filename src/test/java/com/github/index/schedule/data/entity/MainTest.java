@@ -2,7 +2,7 @@ package com.github.index.schedule.data.entity;
 
 import com.github.index.schedule.data.converters.LocalDateAttributeConverter;
 import com.github.index.schedule.data.dao.*;
-import com.github.index.schedule.data.utils.TransactionUtils;
+import com.github.index.schedule.utils.TransactionUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePath;
@@ -11,21 +11,15 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.After;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.internal.MethodSorter;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 
 import javax.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @RunWith(Arquillian.class)
 public class MainTest {

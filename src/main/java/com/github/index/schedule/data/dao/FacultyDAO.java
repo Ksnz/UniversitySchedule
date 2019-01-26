@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.data.utils.TransactionUtils.rollBackSilently;
+import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
 public class FacultyDAO extends AbstractDAO<Faculty,Character> {
     private static final Logger LOGGER = Logger.getLogger(FacultyDAO.class);
