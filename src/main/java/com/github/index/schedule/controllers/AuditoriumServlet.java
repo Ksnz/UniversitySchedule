@@ -25,11 +25,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
 import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
 
 @WebServlet(

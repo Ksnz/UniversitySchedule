@@ -1,9 +1,11 @@
 package com.github.index.schedule.data.entity;
 
-import com.github.index.schedule.data.adapters.LocalDateAdapter;
 import com.github.index.schedule.data.adapters.LocalTimeAdapter;
 import com.github.index.schedule.data.converters.LocalTimeAttributeConverter;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,7 +15,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity

@@ -1,6 +1,9 @@
 package com.github.index.schedule.data.entity;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;

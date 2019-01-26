@@ -2,7 +2,6 @@ package com.github.index.schedule.data.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;

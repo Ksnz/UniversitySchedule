@@ -1,11 +1,14 @@
 package com.github.index.schedule.data.entity;
 
 import com.github.index.schedule.data.adapters.CharAdapter;
-import lombok.*;
-import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;

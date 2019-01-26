@@ -1,14 +1,12 @@
 package com.github.index.schedule.data.entity;
 
 
-import com.github.index.schedule.data.adapters.CharAdapter;
 import com.github.index.schedule.data.adapters.LocalDateAdapter;
 import com.github.index.schedule.data.converters.LocalDateAttributeConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.eclipse.persistence.annotations.Converter;
 import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 
 import javax.persistence.*;
@@ -19,7 +17,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "students")

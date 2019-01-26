@@ -2,7 +2,6 @@ package com.github.index.schedule.controllers;
 
 import com.github.index.schedule.data.dao.CourseDAO;
 import com.github.index.schedule.data.entity.Course;
-import com.github.index.schedule.utils.StringUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;

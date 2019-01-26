@@ -2,9 +2,7 @@ package com.github.index.schedule.controllers;
 
 import com.github.index.schedule.data.dao.FacultyDAO;
 import com.github.index.schedule.data.dao.GroupDAO;
-import com.github.index.schedule.data.dao.GroupDAO;
 import com.github.index.schedule.data.entity.Faculty;
-import com.github.index.schedule.data.entity.Group;
 import com.github.index.schedule.data.entity.Group;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -28,7 +26,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
