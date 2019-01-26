@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<student>
+    <studentId>5024422</studentId>
+    <firstName>Антон</firstName>
+    <lastName>Иванов</lastName>
+    <patronymic>Иванович</patronymic>
+    <birthDay>1993-01-05</birthDay>
+    <group>
+        <groupId>502442</groupId>
+        <faculty>
+            <fullName>Факультет заочного обучения</fullName>
+            <id>0</id>
+            <shortName>ФЗО</shortName>
+        </faculty>
+    </group>
+</student>

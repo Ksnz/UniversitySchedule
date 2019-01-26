@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<scheduleEntry>
+    <id>4</id>
+    <lecturer>
+        <lecturerId>500000</lecturerId>
+        <firstName>Иван</firstName>
+        <lastName>Иванов</lastName>
+        <patronymic>Иванович</patronymic>
+        <birthDay>1976-06-05</birthDay>
+    </lecturer>
+    <auditorium>
+        <room>5</room>
+        <housing>1</housing>
+        <capacity>25</capacity>
+    </auditorium>
+    <course>
+        <id>11</id>
+        <shortName>ПБЗ</shortName>
+        <fullName>Проектирование баз знаний</fullName>
+    </course>
+    <groups>
+        <groupId>552001</groupId>
+        <faculty>
+            <fullName>Факультет компьютерных систем и сетей</fullName>
+            <id>5</id>
+            <shortName>ФКСИС</shortName>
+        </faculty>
+    </groups>
+    <groups>
+        <groupId>552002</groupId>
+        <faculty>
+            <fullName>Факультет компьютерных систем и сетей</fullName>
+            <id>5</id>
+            <shortName>ФКСИС</shortName>
+        </faculty>
+    </groups>
+    <dayOfWeek>THURSDAY</dayOfWeek>
+    <weekNumber>2</weekNumber>
+    <startTime>09:25</startTime>
+    <endTime>10:25</endTime>
+</scheduleEntry>
