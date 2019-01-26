@@ -40,7 +40,7 @@
     <form method="POST" action='students?action=create'>
         <div class="field">
             <label>Номер студенческого:</label>
-            <input required pattern="[0-9]+"
+            <input <c:if test="${not empty edit}">readonly</c:if> required pattern="[0-9]+"
                    type="text" name="studentId" maxlength="8"
                    value="<c:out value="${student.studentId}" />"/>
         </div>

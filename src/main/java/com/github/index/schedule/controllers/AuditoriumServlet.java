@@ -94,6 +94,7 @@ public class AuditoriumServlet extends HttpServlet {
                     dao.find(key).ifPresent(dao::deleteAuditorium);
                 }
             } else if (action.equalsIgnoreCase("edit")) {
+                request.setAttribute("edit", true);
                 if (auditoriumRoom.isPresent() && auditoriumHousing.isPresent()) {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());

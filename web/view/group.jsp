@@ -30,7 +30,7 @@
     <form method="POST" action='groups?action=create'>
         <div class="field">
             <label>Код группы :</label>
-            <input required pattern="[0-9]+"
+            <input <c:if test="${not empty edit}">readonly</c:if> required pattern="[0-9]+"
                    type="text" name="groupId"
                    value="<c:out value="${group.groupId}"/>"/>
         </div>

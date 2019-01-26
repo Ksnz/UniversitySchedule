@@ -40,7 +40,7 @@
     <form method="POST" action='lecturers?action=create'>
         <div class="field">
             <label>Код преподавателя:</label>
-            <input readonly pattern="[0-9]+"
+            <input <c:if test="${not empty edit}">readonly</c:if> pattern="[0-9]+"
                    type="text" name="lecturerId" maxlength="8"
                    value="<c:out value="${lecturer.lecturerId}" />"/>
         </div>

@@ -102,6 +102,7 @@ public class ScheduleEntryServlet extends HttpServlet {
             if (action.equalsIgnoreCase("delete")) {
                 scheduleId.ifPresent(entry -> dao.find(entry).ifPresent(dao::deleteScheduleEntry));
             } else if (action.equalsIgnoreCase("edit")) {
+request.setAttribute("edit",true);
                 scheduleId.ifPresent(entry -> dao.find(entry).ifPresent(scheduleentry -> {
                     request.setAttribute("scheduleentry", scheduleentry);
                 }));

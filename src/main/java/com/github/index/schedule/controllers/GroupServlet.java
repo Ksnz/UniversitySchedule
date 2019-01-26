@@ -93,6 +93,7 @@ public class GroupServlet extends HttpServlet {
             if (action.equalsIgnoreCase("delete")) {
                 groupId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteGroup));
             } else if (action.equalsIgnoreCase("edit")) {
+                request.setAttribute("edit", true);
                 groupId.ifPresent(character -> dao.find(character).ifPresent(group -> {
                     request.setAttribute("group", group);
                 }));

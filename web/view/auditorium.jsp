@@ -30,7 +30,7 @@
     <form method="POST" action='auditoriums?action=create'>
         <div class="field">
             <label>Номер аудитории :</label>
-            <input required pattern="[0-9]+" type="text" name="auditoriumIdRoom" maxlength="3"
+            <input <c:if test="${not empty edit}">readonly</c:if> required pattern="[0-9]+" type="text" name="auditoriumIdRoom" maxlength="3"
                    value="<c:out value="${auditorium.room}"/>"/>
         </div>
         <div class="field">

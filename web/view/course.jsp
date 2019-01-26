@@ -30,7 +30,7 @@
     <form method="POST" action='courses?action=create'>
         <div class="field">
             <label>Код предмета :</label>
-            <input required pattern="[0-9]+" type="text" name="courseId" maxlength="5"
+            <input <c:if test="${not empty edit}">readonly</c:if> required pattern="[0-9]+" type="text" name="courseId" maxlength="5"
                    value="<c:out value="${course.id}" />"/>
         </div>
         <div class="field">

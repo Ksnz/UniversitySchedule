@@ -30,7 +30,7 @@
     <form accept-charset=utf-8 method="POST" action='faculties?action=create'>
         <div class="field">
             <label>Код факультета :</label>
-            <input required pattern="[0-9a-zA-Z]+" type="text" name="facultyId" maxlength="1"
+            <input <c:if test="${not empty edit}">readonly</c:if> required pattern="[0-9a-zA-Z]+" type="text" name="facultyId" maxlength="1"
                    value="<c:out value="${faculty.id}"/>"/>
         </div>
         <div class="field">

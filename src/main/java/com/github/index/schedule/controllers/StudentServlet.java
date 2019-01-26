@@ -94,6 +94,7 @@ public class StudentServlet extends HttpServlet {
             if (action.equalsIgnoreCase("delete")) {
                 studentId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteStudent));
             } else if (action.equalsIgnoreCase("edit")) {
+                request.setAttribute("edit", true);
                 studentId.ifPresent(character -> dao.find(character).ifPresent(student -> {
                     request.setAttribute("student", student);
                 }));
