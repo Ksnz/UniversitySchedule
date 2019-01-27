@@ -5,7 +5,6 @@
              version="2.2">
     <persistence-unit name="SchedulePersistenceUnit" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <jta-data-source>main</jta-data-source>
         <class>com.github.index.schedule.data.entity.Auditorium</class>
         <class>com.github.index.schedule.data.entity.Course</class>
         <class>com.github.index.schedule.data.entity.Faculty</class>
