@@ -22,7 +22,7 @@ Freemarker template, **jsp**, jsf, thymeleaf, mustache
 
 Предметы, имена преподавателей и студентов можно придумать или взять откуда то готовые
 
-##Сборка
+## Сборка
 * Скопировать проект
 ```
 git clone https://github.com/Ksnz/UniversitySchedule.git 
