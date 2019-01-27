@@ -1,26 +1,13 @@
 package com.github.index.schedule.utils;
 
-import com.github.index.schedule.data.dao.AbstractDAO;
-import com.github.index.schedule.data.dao.AuditoriumDAO;
-import com.github.index.schedule.data.entity.Auditorium;
-import com.github.index.schedule.data.entity.AuditoriumKey;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
 
 public class XmlUtils {
     private static final Logger LOGGER = Logger.getLogger(XmlUtils.class);

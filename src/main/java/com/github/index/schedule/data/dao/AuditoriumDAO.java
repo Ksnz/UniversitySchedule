@@ -4,12 +4,10 @@ import com.github.index.schedule.data.entity.Auditorium;
 import com.github.index.schedule.data.entity.AuditoriumKey;
 import org.apache.log4j.Logger;
 
-
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.*;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
