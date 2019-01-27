@@ -35,8 +35,6 @@ import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
         urlPatterns = "/view/courses")
 public class CourseServlet extends HttpServlet {
 
-    //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
-    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
     private static Logger LOGGER = Logger.getLogger(CourseServlet.class);
 
     private int pageNumber = 1;

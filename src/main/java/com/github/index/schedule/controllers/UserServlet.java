@@ -28,7 +28,6 @@ import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
         urlPatterns = "/view/userschedule")
 public class UserServlet extends HttpServlet {
 
-    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
     private static Logger LOGGER = Logger.getLogger(UserServlet.class);
 
 

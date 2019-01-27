@@ -37,8 +37,6 @@ import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
         urlPatterns = "/view/groups")
 public class GroupServlet extends HttpServlet {
 
-    //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
-    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
     private static Logger LOGGER = Logger.getLogger(GroupServlet.class);
 
     private int pageNumber = 1;
@@ -84,7 +82,6 @@ public class GroupServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
         String action = request.getParameter("action");
         String path = "groups.jsp";
         if (action != null) {
@@ -158,6 +155,5 @@ public class GroupServlet extends HttpServlet {
 
         RequestDispatcher view = request.getRequestDispatcher(path);
         view.forward(request, response);
-        entityManager.close();
     }
 }
