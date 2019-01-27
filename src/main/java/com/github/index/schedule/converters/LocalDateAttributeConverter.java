@@ -1,4 +1,6 @@
-package com.github.index.schedule.data.converters;
+package com.github.index.schedule.converters;
+
+import lombok.NonNull;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -13,12 +15,12 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
             .appendPattern("yyyy-MM-dd").toFormatter();
 
     @Override
-    public String convertToDatabaseColumn(LocalDate locDate) {
-        return (locDate == null ? null : locDate.format(formatter));
+    public String convertToDatabaseColumn(@NonNull LocalDate locDate) {
+        return locDate.format(formatter);
     }
 
     @Override
-    public LocalDate convertToEntityAttribute(String sqlDate) {
-        return (sqlDate == null ? null : LocalDate.parse(sqlDate, formatter));
+    public LocalDate convertToEntityAttribute(@NonNull String sqlDate) {
+        return LocalDate.parse(sqlDate, formatter);
     }
 }

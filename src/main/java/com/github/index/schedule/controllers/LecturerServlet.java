@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
 import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
 
 
 @WebServlet(
@@ -128,19 +129,8 @@ public class LecturerServlet extends HttpServlet {
                 if (lecturerId.isPresent()) {
                     Optional<Lecturer> lecturerOptional = dao.find(lecturerId.get());
                     lecturerOptional.ifPresent(lecturer1 -> {
-                        try (ServletOutputStream out = response.getOutputStream()) {
-
-                            JAXBContext jaxbContext = JAXBContext.newInstance(Lecturer.class);
-
-                            Marshaller marshaller = jaxbContext.createMarshaller();
-                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                            marshaller.marshal(lecturer1, out);
-                            response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "lecturer" + lecturerId.get() + ".xml");
-                            out.flush();
-                        } catch (IOException | JAXBException e) {
-                            LOGGER.warn("Ошибка создания файла", e);
-                        }
+                        String filename = "lecturer" + lecturer1.getLecturerId();
+                        marshalEntity(response, lecturer1, filename);
                     });
                 }
             } else if (action.equalsIgnoreCase("upload")) {

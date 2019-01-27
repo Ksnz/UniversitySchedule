@@ -1,6 +1,6 @@
 package com.github.index.schedule.data.entity;
 
-import com.github.index.schedule.data.adapters.LocalDateAdapter;
+import com.github.index.schedule.adapters.LocalDateAdapter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +44,7 @@ public class Lecturer implements Serializable {
     @Column(length = 32, nullable = false)
     private String patronymic;
 
-    @Column(name = "birth_day")
+    @Column(name = "birth_day", nullable = false)
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate birthDay;
 

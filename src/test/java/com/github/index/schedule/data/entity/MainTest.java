@@ -1,6 +1,6 @@
 package com.github.index.schedule.data.entity;
 
-import com.github.index.schedule.data.converters.LocalDateAttributeConverter;
+import com.github.index.schedule.converters.LocalDateAttributeConverter;
 import com.github.index.schedule.data.dao.*;
 import com.github.index.schedule.utils.TransactionUtils;
 import org.jboss.arquillian.container.test.api.Deployment;

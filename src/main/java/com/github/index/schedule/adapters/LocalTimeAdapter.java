@@ -1,4 +1,6 @@
-package com.github.index.schedule.data.adapters;
+package com.github.index.schedule.adapters;
+
+import lombok.NonNull;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalTime;
@@ -10,11 +12,11 @@ public class LocalTimeAdapter extends XmlAdapter<String, LocalTime> {
     private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
             .appendPattern("HH:mm").toFormatter();
 
-    public LocalTime unmarshal(String v) throws Exception {
+    public LocalTime unmarshal(@NonNull String v) throws Exception {
         return LocalTime.parse(v, formatter);
     }
 
-    public String marshal(LocalTime v) throws Exception {
+    public String marshal(@NonNull LocalTime v) throws Exception {
         return v.format(formatter);
     }
 }

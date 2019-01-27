@@ -1,8 +1,8 @@
 package com.github.index.schedule.data.entity;
 
 
-import com.github.index.schedule.data.adapters.LocalDateAdapter;
-import com.github.index.schedule.data.converters.LocalDateAttributeConverter;
+import com.github.index.schedule.adapters.LocalDateAdapter;
+import com.github.index.schedule.converters.LocalDateAttributeConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +43,7 @@ public class Student implements Serializable {
     @Column(name = "patronymic", length = 32, nullable = false)
     private String patronymic;
 
-    @Column(name = "birth_day")
+    @Column(name = "birth_day", nullable = false)
     @Convert(converter = LocalDateAttributeConverter.class)
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate birthDay;

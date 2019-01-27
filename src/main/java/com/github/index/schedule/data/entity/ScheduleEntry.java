@@ -1,7 +1,7 @@
 package com.github.index.schedule.data.entity;
 
-import com.github.index.schedule.data.adapters.LocalTimeAdapter;
-import com.github.index.schedule.data.converters.LocalTimeAttributeConverter;
+import com.github.index.schedule.adapters.LocalTimeAdapter;
+import com.github.index.schedule.converters.LocalTimeAttributeConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

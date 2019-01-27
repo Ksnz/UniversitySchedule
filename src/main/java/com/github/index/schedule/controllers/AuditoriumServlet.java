@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
 
 @WebServlet(
         name = "AuditoriumServlet",
@@ -132,19 +133,8 @@ public class AuditoriumServlet extends HttpServlet {
                     key.setHousing(auditoriumHousing.get());
                     Optional<Auditorium> auditoriumOptional = dao.find(key);
                     auditoriumOptional.ifPresent(auditorium1 -> {
-                        try (ServletOutputStream out = response.getOutputStream()) {
-
-                            JAXBContext jaxbContext = JAXBContext.newInstance(Auditorium.class);
-
-                            Marshaller marshaller = jaxbContext.createMarshaller();
-                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                            marshaller.marshal(auditorium1, out);
-                            response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "auditorium" + auditoriumRoom.get() + ".xml");
-                            out.flush();
-                        } catch (IOException | JAXBException e) {
-                            LOGGER.warn("Ошибка создания файла", e);
-                        }
+                        String filename = "auditorium" + auditorium1.getRoom() + "-" + auditorium1.getHousing();
+                        marshalEntity(response, auditorium1, filename);
                     });
                 }
             } else if (action.equalsIgnoreCase("upload")) {
@@ -172,7 +162,6 @@ public class AuditoriumServlet extends HttpServlet {
                     LOGGER.warn("Ошибка чтения загруженного файла", e);
                     request.setAttribute("message", "Ошибка чтения файла: " + e.getLocalizedMessage());
                     path = "error.jsp";
-                    //path = "";
                 }
             }
         }

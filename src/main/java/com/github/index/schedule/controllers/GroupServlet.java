@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
+import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
 
 
 @WebServlet(
@@ -120,17 +121,8 @@ public class GroupServlet extends HttpServlet {
                 if (groupId.isPresent()) {
                     Optional<Group> groupOptional = dao.find(groupId.get());
                     groupOptional.ifPresent(group1 -> {
-                        try (ServletOutputStream out = response.getOutputStream()) {
-                            JAXBContext jaxbContext = JAXBContext.newInstance(Group.class);
-                            Marshaller marshaller = jaxbContext.createMarshaller();
-                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                            marshaller.marshal(group1, out);
-                            response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "group" + group1.getGroupId() + ".xml");
-                            out.flush();
-                        } catch (IOException | JAXBException e) {
-                            LOGGER.warn("Ошибка создания файла", e);
-                        }
+                        String filename = "group" + group1.getGroupId();
+                        marshalEntity(response, group1, filename);
                     });
                 }
             } else if (action.equalsIgnoreCase("upload")) {

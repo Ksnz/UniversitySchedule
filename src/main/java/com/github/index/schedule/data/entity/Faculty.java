@@ -1,6 +1,6 @@
 package com.github.index.schedule.data.entity;
 
-import com.github.index.schedule.data.adapters.CharAdapter;
+import com.github.index.schedule.adapters.CharAdapter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

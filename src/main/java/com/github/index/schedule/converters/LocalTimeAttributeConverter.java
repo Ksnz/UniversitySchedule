@@ -1,4 +1,6 @@
-package com.github.index.schedule.data.converters;
+package com.github.index.schedule.converters;
+
+import lombok.NonNull;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -13,12 +15,12 @@ public class LocalTimeAttributeConverter implements AttributeConverter<LocalTime
             .appendPattern("HH:mm").toFormatter();
 
     @Override
-    public String convertToDatabaseColumn(LocalTime locTime) {
-        return (locTime == null ? null : locTime.format(formatter));
+    public String convertToDatabaseColumn(@NonNull LocalTime locTime) {
+        return locTime.format(formatter);
     }
 
     @Override
-    public LocalTime convertToEntityAttribute(String sqlTime) {
-        return (sqlTime == null ? null : LocalTime.parse(sqlTime, formatter));
+    public LocalTime convertToEntityAttribute(@NonNull String sqlTime) {
+        return LocalTime.parse(sqlTime, formatter);
     }
 }

@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.github.index.schedule.utils.OtherUtils.getParameterIfPresent;
 import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
+import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
 
 @WebServlet(
         name = "ScheduleEntryServlet",
@@ -181,19 +182,8 @@ request.setAttribute("edit",true);
                 if (scheduleId.isPresent()) {
                     Optional<ScheduleEntry> scheduleentryOptional = dao.find(scheduleId.get());
                     scheduleentryOptional.ifPresent(scheduleentry1 -> {
-                        try (ServletOutputStream out = response.getOutputStream()) {
-
-                            JAXBContext jaxbContext = JAXBContext.newInstance(ScheduleEntry.class);
-
-                            Marshaller marshaller = jaxbContext.createMarshaller();
-                            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                            marshaller.marshal(scheduleentry1, out);
-                            response.setContentType("application/xml");
-                            response.setHeader("Content-Disposition", "attachment; filename=\"" + "schedule" + scheduleId.get() + ".xml");
-                            out.flush();
-                        } catch (IOException | JAXBException e) {
-                            LOGGER.warn("Ошибка создания файла", e);
-                        }
+                        String filename = "scheduleentry" + scheduleentry1.getId();
+                        marshalEntity(response, scheduleentry1, filename);
                     });
                 }
             } else if (action.equalsIgnoreCase("upload")) {
