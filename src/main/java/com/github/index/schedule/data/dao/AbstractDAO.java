@@ -1,11 +1,18 @@
 package com.github.index.schedule.data.dao;
 
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.util.List;
 import java.util.Optional;
 
+@Singleton
+@Startup
+@Lock(LockType.READ)
 public abstract class AbstractDAO<T, K> implements BaseDAO<T, K> {
 
     static final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");

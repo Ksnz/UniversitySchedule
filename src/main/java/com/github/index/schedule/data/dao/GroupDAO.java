@@ -4,8 +4,10 @@ import com.github.index.schedule.data.entity.Faculty;
 import com.github.index.schedule.data.entity.Group;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import java.util.Collections;
@@ -14,8 +16,9 @@ import java.util.Optional;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
-@Named
-@ApplicationScoped
+@Singleton
+@Startup
+@Lock(LockType.READ)
 public class GroupDAO extends AbstractDAO<Group, Integer> {
     private static final Logger LOGGER = Logger.getLogger(GroupDAO.class);
 

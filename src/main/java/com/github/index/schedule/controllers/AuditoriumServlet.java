@@ -10,8 +10,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,12 +31,7 @@ import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
         name = "AuditoriumServlet",
         urlPatterns = "/view/auditoriums")
 public class AuditoriumServlet extends HttpServlet {
-
-    @PersistenceUnit(unitName = "SchedulePersistenceUnit")
-    private EntityManagerFactory entityManagerFactory;
-
     private static Logger LOGGER = Logger.getLogger(AuditoriumServlet.class);
-
     private int pageNumber = 1;
     private int pageCount;
     private static final int PER_PAGE = 5;
