@@ -54,7 +54,7 @@ public class FacultyDAO extends AbstractDAO<Faculty,Character> {
     @Override
     public Optional<Faculty> find(Character key) {
         try {
-            return Optional.ofNullable(fingByKey(Faculty.class, key));
+            return Optional.ofNullable(findByKey(Faculty.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса факультета из бд по ключу", e);
         }

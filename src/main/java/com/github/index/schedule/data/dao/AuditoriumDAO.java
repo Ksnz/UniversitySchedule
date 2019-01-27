@@ -47,7 +47,7 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     @Override
     public Optional<Auditorium> find(AuditoriumKey key) {
         try {
-            return Optional.ofNullable(fingByKey(Auditorium.class, key));
+            return Optional.ofNullable(findByKey(Auditorium.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса аудитории из бд по ключу", e);
         }

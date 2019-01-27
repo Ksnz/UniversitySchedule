@@ -25,7 +25,7 @@ public abstract class AbstractDAO<T, K> implements BaseDAO<T, K> {
         return entityManager.createQuery("SELECT t FROM " + tClass.getSimpleName() + " t").getResultList();
     }
 
-    protected T fingByKey(Class<T> tClass, K key) {
+    protected T findByKey(Class<T> tClass, K key) {
         return entityManager.find(tClass, key);
     }
 

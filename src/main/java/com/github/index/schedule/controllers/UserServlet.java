@@ -29,7 +29,7 @@ import static com.github.index.schedule.utils.StringUtils.isNullOrEmpty;
 public class UserServlet extends HttpServlet {
 
     private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
-    static Logger LOGGER = Logger.getLogger(UserServlet.class);
+    private static Logger LOGGER = Logger.getLogger(UserServlet.class);
 
 
     private static final int PER_PAGE = 10;

@@ -48,7 +48,7 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     @Override
     public Optional<Student> find(Integer key) {
         try {
-            return Optional.ofNullable(fingByKey(Student.class, key));
+            return Optional.ofNullable(findByKey(Student.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса студента из бд по ключу", e);
         }

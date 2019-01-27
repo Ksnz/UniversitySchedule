@@ -39,7 +39,7 @@ public class CourseServlet extends HttpServlet {
 
     //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
     private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
-    static Logger LOGGER = Logger.getLogger(CourseServlet.class);
+    private static Logger LOGGER = Logger.getLogger(CourseServlet.class);
 
     private int pageNumber = 1;
     private int pageCount;

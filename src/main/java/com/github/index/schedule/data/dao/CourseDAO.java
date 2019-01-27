@@ -44,7 +44,7 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     @Override
     public Optional<Course> find(Integer key) {
         try {
-            return Optional.ofNullable(fingByKey(Course.class, key));
+            return Optional.ofNullable(findByKey(Course.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса предмета из бд по ключу", e);
         }

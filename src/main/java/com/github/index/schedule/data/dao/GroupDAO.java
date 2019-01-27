@@ -45,7 +45,7 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     @Override
     public Optional<Group> find(Integer key) {
         try {
-            return Optional.ofNullable(fingByKey(Group.class, key));
+            return Optional.ofNullable(findByKey(Group.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса группы из бд по ключу", e);
         }

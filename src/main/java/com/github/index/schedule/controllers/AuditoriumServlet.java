@@ -38,7 +38,7 @@ public class AuditoriumServlet extends HttpServlet {
 
     //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
     private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
-    static Logger LOGGER = Logger.getLogger(AuditoriumServlet.class);
+    private static Logger LOGGER = Logger.getLogger(AuditoriumServlet.class);
 
     private int pageNumber = 1;
     private int pageCount;

@@ -47,7 +47,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     @Override
     public Optional<ScheduleEntry> find(Integer key) {
         try {
-            return Optional.ofNullable(fingByKey(ScheduleEntry.class, key));
+            return Optional.ofNullable(findByKey(ScheduleEntry.class, key));
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса расписания из бд по ключу", e);
         }
