@@ -49,13 +49,13 @@ public class MainTest {
     public void setUp() throws Exception {
         EntityManagerFactory f = Persistence.createEntityManagerFactory("SchedulePersistenceUnitTest");
         entityManager = f.createEntityManager();
-        AuditoriumDAO auditoriumDAO = new AuditoriumDAO(entityManager);
+        AuditoriumDAO auditoriumDAO = new AuditoriumDAO();
         for (int i = 1; i < 10; i++) {
             for (int j = 1; j < 6; j++) {
                 auditoriumDAO.createAuditorium(i, j, 20 + i * j);
             }
         }
-        FacultyDAO facultyDAO = new FacultyDAO(entityManager);
+        FacultyDAO facultyDAO = new FacultyDAO();
         facultyDAO.createFaculty('1', "ФКП", "Факультет компьютерного проектирования");
         facultyDAO.createFaculty('2', "ФИТУ", "Факультет информационных технологий и управления");
         facultyDAO.createFaculty('3', "ВФ", "Военный факультет");
@@ -67,7 +67,7 @@ public class MainTest {
         facultyDAO.createFaculty('9', "ФНДО", "Факультет непрерывного и дистанционного обучения");
         facultyDAO.createFaculty('0', "ФЗО", "Факультет заочного обучения");
 
-        GroupDAO groupDAO = new GroupDAO(entityManager);
+        GroupDAO groupDAO = new GroupDAO();
         groupDAO.createGroup(502441, facultyDAO.find('0').get());
         groupDAO.createGroup(502442, facultyDAO.find('0').get());
         groupDAO.createGroup(502443, facultyDAO.find('0').get());
@@ -75,22 +75,22 @@ public class MainTest {
         groupDAO.createGroup(552002, facultyDAO.find('5').get());
         groupDAO.createGroup(552003, facultyDAO.find('5').get());
 
-        CourseDAO courseDAO = new CourseDAO(entityManager);
+        CourseDAO courseDAO = new CourseDAO();
         courseDAO.createCourse(0, "ППВИС", "Программирование программ в интеллектуальных средах");
         courseDAO.createCourse(11, "ПБЗ", "Проектирование баз знаний");
         courseDAO.createCourse(2, "ВМ", "Высшая математика");
         courseDAO.createCourse(3, "ОАИП", "Основы алгоритмизации и программирования");
 
-        StudentDAO studentDAO = new StudentDAO(entityManager);
+        StudentDAO studentDAO = new StudentDAO();
         studentDAO.createStudent(5024411, "Алексей", "Ксёнжик", "Геннадьевич", LocalDate.of(1992, 2, 6), groupDAO.find(502441).get());
         studentDAO.createStudent(5024412, "Екатерина", "Ксёнжик", "Геннадьевна", LocalDate.of(1995, 3, 11), groupDAO.find(502441).get());
 
 
-        LecturerDAO lecturerDAO = new LecturerDAO(entityManager);
+        LecturerDAO lecturerDAO = new LecturerDAO();
         lecturerDAO.createLecturer("Иван", "Иванов", "Иванович", LocalDate.of(1976, 6, 5));
         lecturerDAO.createLecturer("Петр", "Петров", "Петрович", LocalDate.of(1977, 1, 2));
 
-        ScheduleEntryDAO dao = new ScheduleEntryDAO(entityManager);
+        ScheduleEntryDAO dao = new ScheduleEntryDAO();
         dao.createScheduleEntry(auditoriumDAO.findAll().get(0), courseDAO.findAll().get(2), DayOfWeek.FRIDAY, LocalTime.of(9, 0), LocalTime.of(10, 0), (byte) 1, new HashSet<>(), lecturerDAO.findAll().get(0));
 
         ScheduleEntry scheduleEntry = dao.findAll().get(0);
@@ -103,11 +103,11 @@ public class MainTest {
     @Test
     public void newStudent() throws InterruptedException {
 
-        ScheduleEntryDAO dao = new ScheduleEntryDAO(entityManager);
+        ScheduleEntryDAO dao = new ScheduleEntryDAO();
 
         System.out.println("Расписание:");
         dao.findAll().forEach(scheduleEntry -> System.out.println(scheduleEntry.toString() + scheduleEntry.getGroups()));
-        GroupDAO groupDAO = new GroupDAO(entityManager);
+        GroupDAO groupDAO = new GroupDAO();
 
         System.out.println("Группы");
         groupDAO.findAll().forEach(group -> System.out.println(group));

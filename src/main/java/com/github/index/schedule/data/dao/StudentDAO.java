@@ -4,6 +4,8 @@ import com.github.index.schedule.data.entity.Group;
 import com.github.index.schedule.data.entity.Student;
 import org.apache.log4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
@@ -14,17 +16,11 @@ import java.util.Optional;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
-
+@Named
+@ApplicationScoped
 public class StudentDAO extends AbstractDAO<Student,Integer> {
 
     private static final Logger LOGGER = Logger.getLogger(StudentDAO.class);
-
-    public StudentDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
-    public StudentDAO() {
-    }
 
     public long count() {
         try {
@@ -57,7 +53,7 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
 
     public List<Student> findIn(int start, int end) {
         try {
-            return entityManager.createQuery("SELECT s FROM Student s ORDER BY s.studentId").setFirstResult(start).setMaxResults(end).getResultList();
+            return getEntityManager().createQuery("SELECT s FROM Student s ORDER BY s.studentId").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса студентов по диапазону из бд", e);
         }
@@ -65,7 +61,7 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     }
 
     public void createStudent(int studentNumber, String firstName, String lastName, String patronymic, LocalDate birthDay, Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             Student student = new Student();
@@ -76,8 +72,8 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
             student.setGroup(group);
             student.setBirthDay(birthDay);
             group.getStudents().add(student);
-            entityManager.persist(student);
-            entityManager.merge(group);
+            getEntityManager().persist(student);
+            getEntityManager().merge(group);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка создания студента в бд", throwable);
@@ -87,7 +83,7 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     }
 
     public void updateStudent(Student student, int studentNumber, String firstName, String lastName, String patronymic, LocalDate birthDay, Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             student.setStudentId(studentNumber);
@@ -98,8 +94,8 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
             student.setGroup(group);
             student.setBirthDay(birthDay);
             group.getStudents().add(student);
-            entityManager.merge(student);
-            entityManager.merge(group);
+            getEntityManager().merge(student);
+            getEntityManager().merge(group);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления студента в бд", throwable);
@@ -109,10 +105,10 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     }
 
     public void update(Student student) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.merge(student);
+            getEntityManager().merge(student);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления факультета в бд", throwable);
@@ -123,10 +119,10 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
 
 
     public void put(Student student) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(student);
+            getEntityManager().persist(student);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка добавления факультета из бд", throwable);
@@ -136,10 +132,10 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     }
 
     public void deleteStudent(Student student) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.remove(student);
+            getEntityManager().remove(student);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка удаления студента из бд", throwable);

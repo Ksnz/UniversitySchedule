@@ -10,19 +10,18 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,12 +47,16 @@ public class StudentServlet extends HttpServlet {
     private int pageNumber = 1;
     private static final int PER_PAGE = 5;
 
+    @Inject
+    StudentDAO studentDAO;
+
+    @Inject
+    GroupDAO groupDao;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        StudentDAO dao = new StudentDAO(entityManager);
-        long count = dao.count();
+        long count = studentDAO.count();
         Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
@@ -71,38 +74,35 @@ public class StudentServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("student.jsp");
             view.forward(request, response);
         } else {
-            request.setAttribute("students", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("students", studentDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
             RequestDispatcher view = request.getRequestDispatcher("students.jsp");
             view.forward(request, response);
         }
-        entityManager.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        StudentDAO dao = new StudentDAO(entityManager);
-        GroupDAO groupDao = new GroupDAO(entityManager);
+
         String action = request.getParameter("action");
         String path = "students.jsp";
         if (action != null) {
             Optional<Integer> studentId = getParameterIfPresent(request, "studentId", Integer.class);
             Optional<Integer> groupId = getParameterIfPresent(request, "groupId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
-                studentId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteStudent));
+                studentId.ifPresent(character -> studentDAO.find(character).ifPresent(studentDAO::deleteStudent));
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
-                studentId.ifPresent(character -> dao.find(character).ifPresent(student -> {
+                studentId.ifPresent(character -> studentDAO.find(character).ifPresent(student -> {
                     request.setAttribute("student", student);
                 }));
                 path = "student.jsp";
             } else if (action.equalsIgnoreCase("create")) {
                 if (studentId.isPresent() && groupId.isPresent()) {
-                    Optional<Student> student = dao.find(studentId.get());
+                    Optional<Student> student = studentDAO.find(studentId.get());
                     Optional<Group> group = groupDao.find(groupId.get());
                     String firstName = request.getParameter("firstName");
                     String lastName = request.getParameter("lastName");
@@ -116,9 +116,9 @@ public class StudentServlet extends HttpServlet {
                         try {
                             birthDay = LocalDate.parse(birthDayValue);
                             if (student.isPresent() && group.isPresent()) {
-                                dao.updateStudent(student.get(), studentId.get(), firstName, lastName, patronymic, birthDay, group.get());
+                                studentDAO.updateStudent(student.get(), studentId.get(), firstName, lastName, patronymic, birthDay, group.get());
                             } else {
-                                group.ifPresent(presentedGroup -> dao.createStudent(studentId.get(), firstName, lastName, patronymic, birthDay, presentedGroup));
+                                group.ifPresent(presentedGroup -> studentDAO.createStudent(studentId.get(), firstName, lastName, patronymic, birthDay, presentedGroup));
                             }
                         } catch (DateTimeParseException e) {
                             request.setAttribute("message", "Некорректное значение даты рождения: " + birthDayValue);
@@ -130,7 +130,7 @@ public class StudentServlet extends HttpServlet {
                     path = "error.jsp";
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
-                studentId.ifPresent(integer -> dao.find(integer).ifPresent(student1 -> {
+                studentId.ifPresent(integer -> studentDAO.find(integer).ifPresent(student1 -> {
                     String filename = "student" + student1.getStudentId();
                     marshalEntity(response, student1, filename);
                 }));
@@ -145,11 +145,11 @@ public class StudentServlet extends HttpServlet {
                         try (InputStream inputStream = fileItem.getInputStream()) {
                             student = (Student) jaxbUnmarshaller.unmarshal(inputStream);
                         }
-                        Optional<Student> old = dao.find(student.getStudentId());
+                        Optional<Student> old = studentDAO.find(student.getStudentId());
                         if (old.isPresent()) {
-                            dao.update(student);
+                            studentDAO.update(student);
                         } else {
-                            dao.put(student);
+                            studentDAO.put(student);
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
@@ -161,13 +161,12 @@ public class StudentServlet extends HttpServlet {
             }
         }
         if (path.equals("students.jsp")) {
-            request.setAttribute("students", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("students", studentDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
         }
 
         RequestDispatcher view = request.getRequestDispatcher(path);
         view.forward(request, response);
-        entityManager.close();
     }
 }

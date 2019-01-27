@@ -8,19 +8,18 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,12 +44,21 @@ public class ScheduleEntryServlet extends HttpServlet {
     private int pageNumber = 1;
     private static final int PER_PAGE = 5;
 
+    @Inject
+    ScheduleEntryDAO scheduleEntryDAO;
+    @Inject
+    AuditoriumDAO auditoriumDAO;
+    @Inject
+    CourseDAO courseDAO;
+    @Inject
+    GroupDAO groupDAO;
+    @Inject
+    LecturerDAO lecturerDAO;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        ScheduleEntryDAO dao = new ScheduleEntryDAO(entityManager);
-        long count = dao.count();
+        long count = scheduleEntryDAO.count();
         Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
@@ -68,21 +76,19 @@ public class ScheduleEntryServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("scheduleentry.jsp");
             view.forward(request, response);
         } else {
-            request.setAttribute("scheduleentries", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("scheduleentries", scheduleEntryDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
             RequestDispatcher view = request.getRequestDispatcher("scheduleentries.jsp");
             view.forward(request, response);
         }
-        entityManager.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        ScheduleEntryDAO dao = new ScheduleEntryDAO(entityManager);
+
         String action = request.getParameter("action");
         String path = "scheduleentries.jsp";
         if (action != null) {
@@ -101,19 +107,15 @@ public class ScheduleEntryServlet extends HttpServlet {
             }
             Optional<Integer> courseId = getParameterIfPresent(request, "courseId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
-                scheduleId.ifPresent(entry -> dao.find(entry).ifPresent(dao::deleteScheduleEntry));
+                scheduleId.ifPresent(entry -> scheduleEntryDAO.find(entry).ifPresent(scheduleEntryDAO::deleteScheduleEntry));
             } else if (action.equalsIgnoreCase("edit")) {
-request.setAttribute("edit",true);
-                scheduleId.ifPresent(entry -> dao.find(entry).ifPresent(scheduleentry -> {
+                request.setAttribute("edit", true);
+                scheduleId.ifPresent(entry -> scheduleEntryDAO.find(entry).ifPresent(scheduleentry -> {
                     request.setAttribute("scheduleentry", scheduleentry);
                 }));
                 path = "scheduleentry.jsp";
             } else if (action.equalsIgnoreCase("create")) {
                 if (lecturerId.isPresent() && courseId.isPresent() && auditoriumKey.isPresent()) {
-                    AuditoriumDAO auditoriumDAO = new AuditoriumDAO(entityManager);
-                    CourseDAO courseDAO = new CourseDAO(entityManager);
-                    GroupDAO groupDAO = new GroupDAO(entityManager);
-                    LecturerDAO lecturerDAO = new LecturerDAO(entityManager);
                     Optional<Auditorium> auditorium = auditoriumDAO.find(auditoriumKey.get());
                     Optional<Course> course = courseDAO.find(courseId.get());
                     Optional<Lecturer> lecturer = lecturerDAO.find(lecturerId.get());
@@ -148,21 +150,20 @@ request.setAttribute("edit",true);
                         path = "error.jsp";
                         RequestDispatcher view = request.getRequestDispatcher(path);
                         view.forward(request, response);
-                        entityManager.close();
                         return;
                     }
                     if (scheduleId.isPresent()) {
                         if (auditorium.isPresent() && course.isPresent() && lecturer.isPresent()) {
-                            Optional<ScheduleEntry> scheduleEntry = dao.find(scheduleId.get());
+                            Optional<ScheduleEntry> scheduleEntry = scheduleEntryDAO.find(scheduleId.get());
                             if (scheduleEntry.isPresent()) {
-                                dao.updateScheduleEntry(scheduleEntry.get(), auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
+                                scheduleEntryDAO.updateScheduleEntry(scheduleEntry.get(), auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
                             } else {
-                                dao.createScheduleEntry(auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
+                                scheduleEntryDAO.createScheduleEntry(auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
                             }
                         }
                     } else {
                         if (auditorium.isPresent() && course.isPresent() && lecturer.isPresent()) {
-                            dao.createScheduleEntry(auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
+                            scheduleEntryDAO.createScheduleEntry(auditorium.get(), course.get(), dayOfWeek, startTime, endTime, weekNumber, groupSet, lecturer.get());
                         } else if (!auditorium.isPresent()) {
                             request.setAttribute("message", "Нет такой аудитории: " + auditoriumKey.get());
                             path = "error.jsp";
@@ -180,7 +181,7 @@ request.setAttribute("edit",true);
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
                 if (scheduleId.isPresent()) {
-                    Optional<ScheduleEntry> scheduleentryOptional = dao.find(scheduleId.get());
+                    Optional<ScheduleEntry> scheduleentryOptional = scheduleEntryDAO.find(scheduleId.get());
                     scheduleentryOptional.ifPresent(scheduleentry1 -> {
                         String filename = "scheduleentry" + scheduleentry1.getId();
                         marshalEntity(response, scheduleentry1, filename);
@@ -197,11 +198,11 @@ request.setAttribute("edit",true);
                         try (InputStream inputStream = fileItem.getInputStream()) {
                             scheduleEntry = (ScheduleEntry) jaxbUnmarshaller.unmarshal(inputStream);
                         }
-                        Optional<ScheduleEntry> old = dao.find(scheduleEntry.getId());
+                        Optional<ScheduleEntry> old = scheduleEntryDAO.find(scheduleEntry.getId());
                         if (old.isPresent()) {
-                            dao.update(scheduleEntry);
+                            scheduleEntryDAO.update(scheduleEntry);
                         } else {
-                            dao.put(scheduleEntry);
+                            scheduleEntryDAO.put(scheduleEntry);
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
@@ -213,13 +214,12 @@ request.setAttribute("edit",true);
             }
         }
         if (path.equals("scheduleentries.jsp")) {
-            request.setAttribute("scheduleentries", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("scheduleentries", scheduleEntryDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
         }
 
         RequestDispatcher view = request.getRequestDispatcher(path);
         view.forward(request, response);
-        entityManager.close();
     }
 }

@@ -9,19 +9,15 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,19 +33,20 @@ import static com.github.index.schedule.utils.XmlUtils.marshalEntity;
 public class AuditoriumServlet extends HttpServlet {
 
     //@PersistenceUnit(unitName = "SchedulePersistenceUnit")
-    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
+    //private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
     private static Logger LOGGER = Logger.getLogger(AuditoriumServlet.class);
 
     private int pageNumber = 1;
     private int pageCount;
     private static final int PER_PAGE = 5;
 
+    @Inject
+    AuditoriumDAO auditoriumDAO;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        AuditoriumDAO dao = new AuditoriumDAO(entityManager);
-        long count = dao.count();
+        long count = auditoriumDAO.count();
         Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
@@ -67,21 +64,21 @@ public class AuditoriumServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("auditorium.jsp");
             view.forward(request, response);
         } else {
-            request.setAttribute("auditoriums", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("auditoriums", auditoriumDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
             RequestDispatcher view = request.getRequestDispatcher("auditoriums.jsp");
             view.forward(request, response);
         }
-        entityManager.close();
+        //entityManager.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        AuditoriumDAO dao = new AuditoriumDAO(entityManager);
+//        EntityManager entityManager = entityManagerFactory.createEntityManager();
+//        AuditoriumDAO auditoriumDAO = new AuditoriumDAO(entityManager);
         String action = request.getParameter("action");
         String path = "auditoriums.jsp";
         if (action != null) {
@@ -92,7 +89,7 @@ public class AuditoriumServlet extends HttpServlet {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());
                     key.setHousing(auditoriumHousing.get());
-                    dao.find(key).ifPresent(dao::deleteAuditorium);
+                    auditoriumDAO.find(key).ifPresent(auditoriumDAO::deleteAuditorium);
                 }
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
@@ -100,7 +97,7 @@ public class AuditoriumServlet extends HttpServlet {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());
                     key.setHousing(auditoriumHousing.get());
-                    dao.find(key).ifPresent(auditorium -> {
+                    auditoriumDAO.find(key).ifPresent(auditorium -> {
                         request.setAttribute("auditorium", auditorium);
                     });
                     path = "auditorium.jsp";
@@ -112,11 +109,11 @@ public class AuditoriumServlet extends HttpServlet {
                     key.setHousing(auditoriumHousing.get());
                     int capacity = getParameterIfPresent(request, "capacity", Integer.class).orElse(-1);
                     if (capacity > 0) {
-                        Optional<Auditorium> auditorium = dao.find(key);
+                        Optional<Auditorium> auditorium = auditoriumDAO.find(key);
                         if (auditorium.isPresent()) {
-                            dao.updateAuditorium(auditorium.get(), capacity);
+                            auditoriumDAO.updateAuditorium(auditorium.get(), capacity);
                         } else {
-                            dao.createAuditorium(key.getRoom(), key.getHousing(), capacity);
+                            auditoriumDAO.createAuditorium(key.getRoom(), key.getHousing(), capacity);
                         }
                     } else {
                         request.setAttribute("message", "Неправильное значение вместимости: " + request.getParameter("capacity"));
@@ -131,7 +128,7 @@ public class AuditoriumServlet extends HttpServlet {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());
                     key.setHousing(auditoriumHousing.get());
-                    Optional<Auditorium> auditoriumOptional = dao.find(key);
+                    Optional<Auditorium> auditoriumOptional = auditoriumDAO.find(key);
                     auditoriumOptional.ifPresent(auditorium1 -> {
                         String filename = "auditorium" + auditorium1.getRoom() + "-" + auditorium1.getHousing();
                         marshalEntity(response, auditorium1, filename);
@@ -151,11 +148,11 @@ public class AuditoriumServlet extends HttpServlet {
                         AuditoriumKey key = new AuditoriumKey();
                         key.setRoom(auditorium.getRoom());
                         key.setHousing(auditorium.getHousing());
-                        Optional<Auditorium> old = dao.find(key);
+                        Optional<Auditorium> old = auditoriumDAO.find(key);
                         if (old.isPresent()) {
-                            dao.update(auditorium);
+                            auditoriumDAO.update(auditorium);
                         } else {
-                            dao.put(auditorium);
+                            auditoriumDAO.put(auditorium);
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
@@ -166,7 +163,7 @@ public class AuditoriumServlet extends HttpServlet {
             }
         }
         if (path.equals("auditoriums.jsp")) {
-            request.setAttribute("auditoriums", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("auditoriums", auditoriumDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
         }
@@ -174,6 +171,6 @@ public class AuditoriumServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher(path);
             view.forward(request, response);
         }
-        entityManager.close();
+        //entityManager.close();
     }
 }

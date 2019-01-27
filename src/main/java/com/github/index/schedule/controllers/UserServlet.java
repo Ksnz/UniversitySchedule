@@ -6,6 +6,7 @@ import com.github.index.schedule.data.dao.ScheduleEntryDAO;
 import com.github.index.schedule.data.entity.ScheduleEntry;
 import org.apache.log4j.Logger;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -34,14 +35,17 @@ public class UserServlet extends HttpServlet {
 
     private static final int PER_PAGE = 10;
 
+    @Inject
+    GroupDAO groupDAO;
+    @Inject
+    LecturerDAO lecturerDAO;
+    @Inject
+    ScheduleEntryDAO scheduleEntryDAO;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        GroupDAO groupDAO = new GroupDAO(entityManager);
         String path = "userschedule.jsp";
-        LecturerDAO lecturerDAO = new LecturerDAO(entityManager);
-        ScheduleEntryDAO scheduleEntryDAO = new ScheduleEntryDAO(entityManager);
         String action = request.getParameter("action");
         Optional<Integer> id = getParameterIfPresent(request, "id", Integer.class);
         if ("group".equalsIgnoreCase(action)) {
@@ -67,7 +71,6 @@ public class UserServlet extends HttpServlet {
         }
         RequestDispatcher view = request.getRequestDispatcher(path);
         view.forward(request, response);
-        entityManager.close();
     }
 
 }

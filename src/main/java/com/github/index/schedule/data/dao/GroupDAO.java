@@ -4,6 +4,8 @@ import com.github.index.schedule.data.entity.Faculty;
 import com.github.index.schedule.data.entity.Group;
 import org.apache.log4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
@@ -13,15 +15,10 @@ import java.util.Optional;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
+@Named
+@ApplicationScoped
 public class GroupDAO extends AbstractDAO<Group, Integer> {
     private static final Logger LOGGER = Logger.getLogger(GroupDAO.class);
-
-    public GroupDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
-    public GroupDAO() {
-    }
 
     public long count() {
         try {
@@ -54,7 +51,7 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
 
     public List<Group> findIn(int start, int end) {
         try {
-            return entityManager.createQuery("SELECT g FROM Group g ORDER BY g.groupId").setFirstResult(start).setMaxResults(end).getResultList();
+            return getEntityManager().createQuery("SELECT g FROM Group g ORDER BY g.groupId").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса групп по диапазону из бд", e);
         }
@@ -62,15 +59,15 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     }
 
     public void createGroup(int id, Faculty faculty) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             Group group = new Group();
             group.setGroupId(id);
             group.setFaculty(faculty);
             faculty.getGroups().add(group);
-            entityManager.persist(group);
-            entityManager.merge(faculty);
+            getEntityManager().persist(group);
+            getEntityManager().merge(faculty);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка создания группы в бд", throwable);
@@ -80,14 +77,14 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     }
 
     public void updateGroup(Group group, int id, Faculty faculty) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             group.setGroupId(id);
             group.setFaculty(faculty);
             faculty.getGroups().add(group);
-            entityManager.merge(group);
-            entityManager.merge(faculty);
+            getEntityManager().merge(group);
+            getEntityManager().merge(faculty);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления группы в бд", throwable);
@@ -97,10 +94,10 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     }
 
     public void update(Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.merge(group);
+            getEntityManager().merge(group);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления группы в бд", throwable);
@@ -110,10 +107,10 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     }
 
     public void put(Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(group);
+            getEntityManager().persist(group);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка добавления группы в бд", throwable);
@@ -123,10 +120,10 @@ public class GroupDAO extends AbstractDAO<Group, Integer> {
     }
 
     public void deleteGroup(Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.remove(group);
+            getEntityManager().remove(group);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка удаления группы из бд", throwable);

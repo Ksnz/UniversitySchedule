@@ -4,30 +4,28 @@ import com.github.index.schedule.data.entity.Auditorium;
 import com.github.index.schedule.data.entity.AuditoriumKey;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceException;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.persistence.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
-public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
+@Named
+@ApplicationScoped
+public class AuditoriumDAO extends AbstractDAO<Auditorium, AuditoriumKey> {
 
     private static final Logger LOGGER = Logger.getLogger(AuditoriumDAO.class);
 
-    public AuditoriumDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
-    public AuditoriumDAO() {
-
-    }
-
     public long count() {
         try {
-            return super.count(Auditorium.class);
+            return (long) getEntityManager().createQuery("SELECT COUNT(t) FROM Auditorium t").getSingleResult(); //fixme
+            //return super.count(Auditorium.class);
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса числа всех аудиторий из бд", e);
         }
@@ -56,7 +54,7 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
 
     public List<Auditorium> findIn(int start, int end) {
         try {
-            return entityManager.createQuery("SELECT a FROM Auditorium a ORDER BY a.housing, a.room").setFirstResult(start).setMaxResults(end).getResultList();
+            return getEntityManager().createQuery("SELECT a FROM Auditorium a ORDER BY a.housing, a.room").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса аудиторий по диапазону из бд", e);
         }
@@ -64,14 +62,14 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     }
 
     public void createAuditorium(int room, int housing, int capacity) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             Auditorium auditorium = new Auditorium();
             auditorium.setRoom(room);
             auditorium.setHousing(housing);
             auditorium.setCapacity(capacity);
-            entityManager.persist(auditorium);
+            getEntityManager().persist(auditorium);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка создания аудитории в бд", throwable);
@@ -81,11 +79,11 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     }
 
     public void updateAuditorium(Auditorium auditorium, int capacity) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             auditorium.setCapacity(capacity);
-            entityManager.merge(auditorium);
+            getEntityManager().merge(auditorium);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления аудитории в бд", throwable);
@@ -95,10 +93,10 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     }
 
     public void update(Auditorium auditorium) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.merge(auditorium);
+            getEntityManager().merge(auditorium);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления аудитории в бд", throwable);
@@ -108,10 +106,10 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     }
 
     public void put(Auditorium auditorium) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(auditorium);
+            getEntityManager().persist(auditorium);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка добавления аудитории в бд", throwable);
@@ -121,10 +119,10 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium,AuditoriumKey> {
     }
 
     public void deleteAuditorium(Auditorium auditorium) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.remove(auditorium);
+            getEntityManager().remove(auditorium);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка удаления аудитории из бд", throwable);

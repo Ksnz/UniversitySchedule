@@ -8,19 +8,17 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,12 +43,13 @@ public class CourseServlet extends HttpServlet {
     private int pageCount;
     private static final int PER_PAGE = 5;
 
+    @Inject
+    CourseDAO courseDAO;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        CourseDAO dao = new CourseDAO(entityManager);
-        long count = dao.count();
+        long count = courseDAO.count();
         Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
@@ -68,31 +67,29 @@ public class CourseServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("course.jsp");
             view.forward(request, response);
         } else {
-            request.setAttribute("courses", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("courses", courseDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
             RequestDispatcher view = request.getRequestDispatcher("courses.jsp");
             view.forward(request, response);
         }
-        entityManager.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        CourseDAO dao = new CourseDAO(entityManager);
+
         String action = request.getParameter("action");
         //PrintWriter output = response.getWriter();
         String path = "courses.jsp";
         if (action != null) {
             Optional<Integer> courseId = getParameterIfPresent(request, "courseId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
-                courseId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteCourse));
+                courseId.ifPresent(character -> courseDAO.find(character).ifPresent(courseDAO::deleteCourse));
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
-                courseId.ifPresent(character -> dao.find(character).ifPresent(course -> {
+                courseId.ifPresent(character -> courseDAO.find(character).ifPresent(course -> {
                     request.setAttribute("course", course);
                 }));
                 path = "course.jsp";
@@ -104,11 +101,11 @@ public class CourseServlet extends HttpServlet {
                         request.setAttribute("message", "Пустое полное название предмета: " + shortName + " или его аббревитатура: " + fullName);
                         path = "error.jsp";
                     } else {
-                        Optional<Course> course = dao.find(courseId.get());
+                        Optional<Course> course = courseDAO.find(courseId.get());
                         if (course.isPresent()) {
-                            dao.updateCourse(course.get(), courseId.get(), shortName, fullName);
+                            courseDAO.updateCourse(course.get(), courseId.get(), shortName, fullName);
                         } else {
-                            dao.createCourse(courseId.get(), shortName, fullName);
+                            courseDAO.createCourse(courseId.get(), shortName, fullName);
                         }
                     }
                 } else {
@@ -117,7 +114,7 @@ public class CourseServlet extends HttpServlet {
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
                 if (courseId.isPresent()) {
-                    Optional<Course> courseOptional = dao.find(courseId.get());
+                    Optional<Course> courseOptional = courseDAO.find(courseId.get());
                     courseOptional.ifPresent(course1 -> {
                         String filename = "course" + course1.getId();
                         marshalEntity(response, course1, filename);
@@ -134,11 +131,11 @@ public class CourseServlet extends HttpServlet {
                         try (InputStream inputStream = fileItem.getInputStream()) {
                             course = (Course) jaxbUnmarshaller.unmarshal(inputStream);
                         }
-                        Optional<Course> old = dao.find(course.getId());
+                        Optional<Course> old = courseDAO.find(course.getId());
                         if (old.isPresent()) {
-                            dao.update(course);
+                            courseDAO.update(course);
                         } else {
-                            dao.put(course);
+                            courseDAO.put(course);
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
@@ -151,7 +148,7 @@ public class CourseServlet extends HttpServlet {
             }
         }
         if (path.equals("courses.jsp")) {
-            request.setAttribute("courses", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("courses", courseDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
         }
@@ -159,6 +156,5 @@ public class CourseServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher(path);
             view.forward(request, response);
         }
-        entityManager.close();
     }
 }

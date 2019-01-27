@@ -10,19 +10,18 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,13 +45,16 @@ public class GroupServlet extends HttpServlet {
     private static final int PER_PAGE = 5;
     private int pageCount = 1;
 
+    @Inject
+    GroupDAO groupDAO;
+
+    @Inject
+    FacultyDAO facultyDao;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        GroupDAO dao = new GroupDAO(entityManager);
-        long count = dao.count();
+        long count = groupDAO.count();
         Optional<Integer> pageParameter = getParameterIfPresent(request, "page", Integer.class);
         if (count > 0) {
             count--;
@@ -70,13 +72,12 @@ public class GroupServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("group.jsp");
             view.forward(request, response);
         } else {
-            request.setAttribute("groups", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("groups", groupDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
             RequestDispatcher view = request.getRequestDispatcher("groups.jsp");
             view.forward(request, response);
         }
-        entityManager.close();
     }
 
     @Override
@@ -84,33 +85,31 @@ public class GroupServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        GroupDAO dao = new GroupDAO(entityManager);
-        FacultyDAO facultyDao = new FacultyDAO(entityManager);
         String action = request.getParameter("action");
         String path = "groups.jsp";
         if (action != null) {
             Optional<Integer> groupId = getParameterIfPresent(request, "groupId", Integer.class);
             Optional<Character> facultyId = getParameterIfPresent(request, "facultyId", Character.class);
             if (action.equalsIgnoreCase("delete")) {
-                groupId.ifPresent(character -> dao.find(character).ifPresent(dao::deleteGroup));
+                groupId.ifPresent(character -> groupDAO.find(character).ifPresent(groupDAO::deleteGroup));
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
-                groupId.ifPresent(character -> dao.find(character).ifPresent(group -> {
+                groupId.ifPresent(character -> groupDAO.find(character).ifPresent(group -> {
                     request.setAttribute("group", group);
                 }));
                 path = "group.jsp";
             } else if (action.equalsIgnoreCase("create")) {
                 if (groupId.isPresent() && facultyId.isPresent()) {
-                    Optional<Group> group = dao.find(groupId.get());
+                    Optional<Group> group = groupDAO.find(groupId.get());
                     Optional<Faculty> faculty = facultyDao.find(facultyId.get());
                     if (group.isPresent() && faculty.isPresent()) {
-                        dao.updateGroup(group.get(), groupId.get(), faculty.get());
+                        groupDAO.updateGroup(group.get(), groupId.get(), faculty.get());
                     } else {
                         if (!faculty.isPresent()) {
                             request.setAttribute("message", "Несуществующий код факультета: " + facultyId.get());
                             path = "error.jsp";
                         } else {
-                            dao.createGroup(groupId.get(), faculty.get());
+                            groupDAO.createGroup(groupId.get(), faculty.get());
                         }
                     }
                 } else {
@@ -119,7 +118,7 @@ public class GroupServlet extends HttpServlet {
                 }
             } else if (action.equalsIgnoreCase("serialize")) {
                 if (groupId.isPresent()) {
-                    Optional<Group> groupOptional = dao.find(groupId.get());
+                    Optional<Group> groupOptional = groupDAO.find(groupId.get());
                     groupOptional.ifPresent(group1 -> {
                         String filename = "group" + group1.getGroupId();
                         marshalEntity(response, group1, filename);
@@ -136,11 +135,11 @@ public class GroupServlet extends HttpServlet {
                         try (InputStream inputStream = fileItem.getInputStream()) {
                             group = (Group) jaxbUnmarshaller.unmarshal(inputStream);
                         }
-                        Optional<Group> old = dao.find(group.getGroupId());
+                        Optional<Group> old = groupDAO.find(group.getGroupId());
                         if (old.isPresent()) {
-                            dao.update(group);
+                            groupDAO.update(group);
                         } else {
-                            dao.put(group);
+                            groupDAO.put(group);
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
@@ -152,7 +151,7 @@ public class GroupServlet extends HttpServlet {
             }
         }
         if (path.equals("groups.jsp")) {
-            request.setAttribute("groups", dao.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
+            request.setAttribute("groups", groupDAO.findIn((pageNumber - 1) * PER_PAGE, PER_PAGE));
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageCount", pageCount);
         }

@@ -3,6 +3,8 @@ package com.github.index.schedule.data.dao;
 import com.github.index.schedule.data.entity.*;
 import org.apache.log4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
@@ -13,17 +15,11 @@ import java.util.*;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
-
+@Named
+@ApplicationScoped
 public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     private static final Logger LOGGER = Logger.getLogger(ScheduleEntryDAO.class);
-
-    public ScheduleEntryDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
-    public ScheduleEntryDAO() {
-    }
 
     public long count() {
         try {
@@ -56,7 +52,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findForGroup(Group group) {
         try {
-            Query query = entityManager.createQuery("SELECT e FROM ScheduleEntry e JOIN e.groups g WHERE g = :g ORDER BY e.id");
+            Query query = getEntityManager().createQuery("SELECT e FROM ScheduleEntry e JOIN e.groups g WHERE g = :g ORDER BY e.id");
             query.setParameter("g", group);
             return query.getResultList();
         } catch (PersistenceException e) {
@@ -67,7 +63,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findForLecturer(Lecturer lecturer) {
         try {
-            Query query = entityManager.createQuery("SELECT e FROM ScheduleEntry e WHERE e.lecturer = :l ORDER BY e.id");
+            Query query = getEntityManager().createQuery("SELECT e FROM ScheduleEntry e WHERE e.lecturer = :l ORDER BY e.id");
             query.setParameter("l", lecturer);
             return query.getResultList();
         } catch (PersistenceException e) {
@@ -78,7 +74,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findIn(int start, int end) {
         try {
-            return entityManager.createQuery("SELECT e FROM ScheduleEntry e ORDER BY e.id").setFirstResult(start).setMaxResults(end).getResultList();
+            return getEntityManager().createQuery("SELECT e FROM ScheduleEntry e ORDER BY e.id").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса расписаний по диапазону из бд", e);
         }
@@ -86,12 +82,12 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void createScheduleEntry(Auditorium auditorium, Course course, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, byte weekNumber, Set<Group> groups, Lecturer lecturer) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             ScheduleEntry scheduleEntry = new ScheduleEntry();
             fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
-            entityManager.persist(scheduleEntry);
+            getEntityManager().persist(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -113,11 +109,11 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void updateScheduleEntry(ScheduleEntry scheduleEntry, Auditorium auditorium, Course course, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, byte weekNumber, Set<Group> groups, Lecturer lecturer) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
-            entityManager.merge(scheduleEntry);
+            getEntityManager().merge(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления расписания в бд", throwable);
@@ -127,11 +123,11 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void addGroup(ScheduleEntry scheduleEntry, Group group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             scheduleEntry.getGroups().add(group);
-            entityManager.merge(scheduleEntry);
+            getEntityManager().merge(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления расписания в бд", throwable);
@@ -141,11 +137,11 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void addGroups(ScheduleEntry scheduleEntry, Collection<Group> group) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             scheduleEntry.getGroups().addAll(group);
-            entityManager.merge(scheduleEntry);
+            getEntityManager().merge(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления расписания в бд", throwable);
@@ -155,10 +151,10 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void update(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.merge(scheduleEntry);
+            getEntityManager().merge(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления расписания в бд", throwable);
@@ -169,10 +165,10 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
 
     public void put(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(scheduleEntry);
+            getEntityManager().persist(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка добавления расписания в бд", throwable);
@@ -182,10 +178,10 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void deleteScheduleEntry(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.remove(scheduleEntry);
+            getEntityManager().remove(scheduleEntry);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка удаления расписания из бд", throwable);

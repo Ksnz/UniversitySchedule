@@ -3,6 +3,8 @@ package com.github.index.schedule.data.dao;
 import com.github.index.schedule.data.entity.Course;
 import org.apache.log4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
@@ -12,15 +14,10 @@ import java.util.Optional;
 
 import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
 
+@Named
+@ApplicationScoped
 public class CourseDAO extends AbstractDAO<Course, Integer> {
     private static final Logger LOGGER = Logger.getLogger(CourseDAO.class);
-
-    public CourseDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
-    public CourseDAO() {
-    }
 
     public long count() {
         try {
@@ -53,7 +50,7 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
 
     public List<Course> findIn(int start, int end) {
         try {
-            return entityManager.createQuery("SELECT с FROM Course с ORDER BY с.id").setFirstResult(start).setMaxResults(end).getResultList();
+            return getEntityManager().createQuery("SELECT с FROM Course с ORDER BY с.id").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса предметов по диапазону из бд", e);
         }
@@ -61,14 +58,14 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void createCourse(int id, String shortName, String fullName) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             Course course = new Course();
             course.setId(id);
             course.setShortName(shortName);
             course.setFullName(fullName);
-            entityManager.persist(course);
+            getEntityManager().persist(course);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка создания предмета в бд", throwable);
@@ -78,13 +75,13 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void updateCourse(Course course, int id, String shortName, String fullName) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
             course.setId(id);
             course.setShortName(shortName);
             course.setFullName(fullName);
-            entityManager.merge(course);
+            getEntityManager().merge(course);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления предмета в бд", throwable);
@@ -94,10 +91,10 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void update(Course course) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.merge(course);
+            getEntityManager().merge(course);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка обновления предмета в бд", throwable);
@@ -107,10 +104,10 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void put(Course course) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(course);
+            getEntityManager().persist(course);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка добавления предмета из бд", throwable);
@@ -120,10 +117,10 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void deleteCourse(Course course) {
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try {
             transaction.begin();
-            entityManager.remove(course);
+            getEntityManager().remove(course);
             transaction.commit();
         } catch (Throwable throwable) {
             LOGGER.error("Ошибка удаления предмета из бд", throwable);
