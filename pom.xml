@@ -50,12 +50,6 @@
                         <zipUrlInstaller>
                             <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/8.5.35/tomcat-8.5.35.zip</url>
                         </zipUrlInstaller>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.postgresql</groupId>
-                                <artifactId>postgresql</artifactId>
-                            </dependency>
-                        </dependencies>
                     </container>
                     <configuration>
                         <home>${project.build.directory}/catalina-base</home>

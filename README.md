@@ -22,11 +22,19 @@ Freemarker template, **jsp**, jsf, thymeleaf, mustache
 
 Предметы, имена преподавателей и студентов можно придумать или взять откуда то готовые
 
-Для запуска
+##Сборка
+* Скопировать проект
 ```
-git clone
+git clone https://github.com/Ksnz/UniversitySchedule.git 
+cd UniversitySchedule
+```
+* Собрать, запустить tomcat
+```
 mvn install
 mvn cargo:run
 ```
+
+* [Открыть в браузере](http://localhost:58090/UniversitySchedule/)
+
 
 Для _заселения_ бд можно взять xml файлы из соответствующего каталога
