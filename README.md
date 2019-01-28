@@ -23,9 +23,16 @@ Freemarker template, **jsp**, jsf, thymeleaf, mustache
 Предметы, имена преподавателей и студентов можно придумать или взять откуда то готовые
 
 ## Сборка
-* Скопировать проект
+* Скопировать проект 
+* Для tomcat 8 без JTA
 ```
 git clone https://github.com/Ksnz/UniversitySchedule.git 
+```
+* Для tomee c JTA
+```
+git clone -b tomee https://github.com/Ksnz/UniversitySchedule.git
+```
+```
 cd UniversitySchedule
 ```
 * Собрать, запустить tomcat
