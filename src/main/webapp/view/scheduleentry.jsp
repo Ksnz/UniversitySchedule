@@ -91,7 +91,7 @@
         </div>
         <div class="field">
             <label>Группы через запятую :</label>
-            <input required
+            <input required pattern="[0-9 ,]+"
                    type="text" name="groups"
                    value="<c:forEach var="group" items="${scheduleentry.groups}"><c:out value="${group.groupId},"/></c:forEach>"/>
         </div>
