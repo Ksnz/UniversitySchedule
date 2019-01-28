@@ -9,8 +9,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -84,7 +82,7 @@ public class CourseServlet extends HttpServlet {
         if (action != null) {
             Optional<Integer> courseId = getParameterIfPresent(request, "courseId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
-                courseId.ifPresent(character -> courseDAO.find(character).ifPresent(courseDAO::deleteCourse));
+                courseId.ifPresent(character -> courseDAO.find(character).ifPresent(courseDAO::delete));
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
                 courseId.ifPresent(character -> courseDAO.find(character).ifPresent(course -> {

@@ -85,7 +85,7 @@ public class AuditoriumServlet extends HttpServlet {
                     AuditoriumKey key = new AuditoriumKey();
                     key.setRoom(auditoriumRoom.get());
                     key.setHousing(auditoriumHousing.get());
-                    auditoriumDAO.find(key).ifPresent(auditoriumDAO::deleteAuditorium);
+                    auditoriumDAO.find(key).ifPresent(auditoriumDAO::delete);
                 }
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);

@@ -7,8 +7,6 @@ import com.github.index.schedule.data.entity.ScheduleEntry;
 import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

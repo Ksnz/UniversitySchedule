@@ -40,12 +40,12 @@
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.6.4</version>
+                <version>1.7.2</version>
                 <configuration>
                     <container>
-                        <containerId>tomcat8x</containerId>
+                        <containerId>tomee7x</containerId>
                         <zipUrlInstaller>
-                            <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/8.5.35/tomcat-8.5.35.zip</url>
+                            <url>http://repo.maven.apache.org/maven2/org/apache/tomee/apache-tomee/7.1.0/apache-tomee-7.1.0-plus.zip</url>
                         </zipUrlInstaller>
                     </container>
                     <configuration>
@@ -60,7 +60,7 @@
                             <datasource>
                                 <jndiName>jdbc/main</jndiName>
                                 <driverClass>org.postgresql.Driver</driverClass>
-                                <url>jdbc:postgresql://schedule</url>
+                                <url>jdbc:postgresql://localhost:5432/schedule</url>
                                 <username>postgresql</username>
                                 <password>root</password>
                                 <id>main</id>
@@ -91,6 +91,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -101,11 +102,6 @@
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
             <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.weld.servlet</groupId>
-            <artifactId>weld-servlet</artifactId>
-            <version>2.4.4.Final</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>

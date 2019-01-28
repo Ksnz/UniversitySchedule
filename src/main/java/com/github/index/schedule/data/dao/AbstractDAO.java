@@ -1,42 +1,39 @@
 package com.github.index.schedule.data.dao;
 
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
-@Singleton
-@Startup
-@Lock(LockType.READ)
+
 public abstract class AbstractDAO<T, K> implements BaseDAO<T, K> {
 
-    static final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("SchedulePersistenceUnit");
-
-    final private ThreadLocal<EntityManager> threadLocal = ThreadLocal.withInitial(entityManagerFactory::createEntityManager);
+    @PersistenceContext(unitName = "SchedulePersistenceUnit")
+    EntityManager entityManager;
 
     protected long count(Class<T> tClass) {
-        return (long) getEntityManager().createQuery("SELECT COUNT(t) FROM " + tClass.getSimpleName() + " t").getSingleResult();
-    }
-
-    public EntityManager getEntityManager() {
-        return threadLocal.get();
+        return (long) entityManager.createQuery("SELECT COUNT(t) FROM " + tClass.getSimpleName() + " t").getSingleResult();
     }
 
     protected List<T> findAllByClass(Class<T> tClass) {
-        return getEntityManager().createQuery("SELECT t FROM " + tClass.getSimpleName() + " t").getResultList();
+        return entityManager.createQuery("SELECT t FROM " + tClass.getSimpleName() + " t").getResultList();
     }
 
     protected T findByKey(Class<T> tClass, K key) {
-        return getEntityManager().find(tClass, key);
+        return entityManager.find(tClass, key);
     }
 
     public abstract Optional<T> find(K key);
 
-    public abstract void update(T t);
+    public void update(T t) {
+        entityManager.merge(t);
+    }
 
+    public void put(T t) {
+        entityManager.persist(t);
+    }
+
+    public void delete(T t) {
+        entityManager.remove(t);
+    }
 }

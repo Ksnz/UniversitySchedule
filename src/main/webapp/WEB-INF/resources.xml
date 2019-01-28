@@ -1,0 +1,14 @@
+<resources>
+    <Resource id="main" type="javax.sql.DataSource">
+        defaultAutoCommit true
+        userName postgres
+        password root
+        jdbcDriver org.postgresql.Driver
+        jdbcUrl jdbc:postgresql://localhost:5432/schedule
+        maxActive 400
+        maxIdle 10
+        minIdle 0
+        poolPreparedStatements false
+        jtaManaged true
+    </Resource>
+</resources>

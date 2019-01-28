@@ -3,22 +3,14 @@ package com.github.index.schedule.data.dao;
 import com.github.index.schedule.data.entity.*;
 import org.apache.log4j.Logger;
 
-import javax.ejb.Lock;
-import javax.ejb.LockType;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
 
-import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
-
 @Singleton
-@Startup
-@Lock(LockType.READ)
 public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     private static final Logger LOGGER = Logger.getLogger(ScheduleEntryDAO.class);
@@ -54,7 +46,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findForGroup(Group group) {
         try {
-            Query query = getEntityManager().createQuery("SELECT e FROM ScheduleEntry e JOIN e.groups g WHERE g = :g ORDER BY e.id");
+            Query query = entityManager.createQuery("SELECT e FROM ScheduleEntry e JOIN e.groups g WHERE g = :g ORDER BY e.id");
             query.setParameter("g", group);
             return query.getResultList();
         } catch (PersistenceException e) {
@@ -65,7 +57,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findForLecturer(Lecturer lecturer) {
         try {
-            Query query = getEntityManager().createQuery("SELECT e FROM ScheduleEntry e WHERE e.lecturer = :l ORDER BY e.id");
+            Query query = entityManager.createQuery("SELECT e FROM ScheduleEntry e WHERE e.lecturer = :l ORDER BY e.id");
             query.setParameter("l", lecturer);
             return query.getResultList();
         } catch (PersistenceException e) {
@@ -76,7 +68,7 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
 
     public List<ScheduleEntry> findIn(int start, int end) {
         try {
-            return getEntityManager().createQuery("SELECT e FROM ScheduleEntry e ORDER BY e.id").setFirstResult(start).setMaxResults(end).getResultList();
+            return entityManager.createQuery("SELECT e FROM ScheduleEntry e ORDER BY e.id").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса расписаний по диапазону из бд", e);
         }
@@ -84,19 +76,10 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void createScheduleEntry(Auditorium auditorium, Course course, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, byte weekNumber, Set<Group> groups, Lecturer lecturer) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            ScheduleEntry scheduleEntry = new ScheduleEntry();
-            fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
-            getEntityManager().persist(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            LOGGER.error("Ошибка создания расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+
+        ScheduleEntry scheduleEntry = new ScheduleEntry();
+        fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
+        entityManager.persist(scheduleEntry);
     }
 
     private void fill(ScheduleEntry scheduleEntry, Course course, DayOfWeek dayOfWeek, Auditorium auditorium, LocalTime endTime, LocalTime startTime, Set<Group> groups, Lecturer lecturer, byte weekNumber) {
@@ -111,85 +94,18 @@ public class ScheduleEntryDAO extends AbstractDAO<ScheduleEntry, Integer> {
     }
 
     public void updateScheduleEntry(ScheduleEntry scheduleEntry, Auditorium auditorium, Course course, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, byte weekNumber, Set<Group> groups, Lecturer lecturer) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
-            getEntityManager().merge(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+        fill(scheduleEntry, course, dayOfWeek, auditorium, endTime, startTime, groups, lecturer, weekNumber);
+        entityManager.merge(scheduleEntry);
     }
 
     public void addGroup(ScheduleEntry scheduleEntry, Group group) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            scheduleEntry.getGroups().add(group);
-            getEntityManager().merge(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+        scheduleEntry.getGroups().add(group);
+        entityManager.merge(scheduleEntry);
+
     }
 
     public void addGroups(ScheduleEntry scheduleEntry, Collection<Group> group) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            scheduleEntry.getGroups().addAll(group);
-            getEntityManager().merge(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+        scheduleEntry.getGroups().addAll(group);
+        entityManager.merge(scheduleEntry);
     }
-
-    public void update(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().merge(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
-
-    public void put(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().persist(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка добавления расписания в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
-    public void deleteScheduleEntry(ScheduleEntry scheduleEntry) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().remove(scheduleEntry);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка удаления расписания из бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
 }

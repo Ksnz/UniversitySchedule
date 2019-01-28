@@ -11,8 +11,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -90,7 +88,7 @@ public class StudentServlet extends HttpServlet {
             Optional<Integer> studentId = getParameterIfPresent(request, "studentId", Integer.class);
             Optional<Integer> groupId = getParameterIfPresent(request, "groupId", Integer.class);
             if (action.equalsIgnoreCase("delete")) {
-                studentId.ifPresent(character -> studentDAO.find(character).ifPresent(studentDAO::deleteStudent));
+                studentId.ifPresent(character -> studentDAO.find(character).ifPresent(studentDAO::delete));
             } else if (action.equalsIgnoreCase("edit")) {
                 request.setAttribute("edit", true);
                 studentId.ifPresent(character -> studentDAO.find(character).ifPresent(student -> {

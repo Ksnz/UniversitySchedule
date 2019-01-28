@@ -4,23 +4,15 @@ import com.github.index.schedule.data.entity.Group;
 import com.github.index.schedule.data.entity.Student;
 import org.apache.log4j.Logger;
 
-import javax.ejb.Lock;
-import javax.ejb.LockType;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
-
 @Singleton
-@Startup
-@Lock(LockType.READ)
-public class StudentDAO extends AbstractDAO<Student,Integer> {
+public class StudentDAO extends AbstractDAO<Student, Integer> {
 
     private static final Logger LOGGER = Logger.getLogger(StudentDAO.class);
 
@@ -55,7 +47,7 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
 
     public List<Student> findIn(int start, int end) {
         try {
-            return getEntityManager().createQuery("SELECT s FROM Student s ORDER BY s.studentId").setFirstResult(start).setMaxResults(end).getResultList();
+            return entityManager.createQuery("SELECT s FROM Student s ORDER BY s.studentId").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса студентов по диапазону из бд", e);
         }
@@ -63,87 +55,30 @@ public class StudentDAO extends AbstractDAO<Student,Integer> {
     }
 
     public void createStudent(int studentNumber, String firstName, String lastName, String patronymic, LocalDate birthDay, Group group) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            Student student = new Student();
-            student.setStudentId(studentNumber);
-            student.setFirstName(firstName);
-            student.setLastName(lastName);
-            student.setPatronymic(patronymic);
-            student.setGroup(group);
-            student.setBirthDay(birthDay);
-            group.getStudents().add(student);
-            getEntityManager().persist(student);
-            getEntityManager().merge(group);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка создания студента в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+
+        Student student = new Student();
+        student.setStudentId(studentNumber);
+        student.setFirstName(firstName);
+        student.setLastName(lastName);
+        student.setPatronymic(patronymic);
+        student.setGroup(group);
+        student.setBirthDay(birthDay);
+        group.getStudents().add(student);
+        entityManager.persist(student);
+        entityManager.merge(group);
     }
 
     public void updateStudent(Student student, int studentNumber, String firstName, String lastName, String patronymic, LocalDate birthDay, Group group) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            student.setStudentId(studentNumber);
-            student.setFirstName(firstName);
-            student.setLastName(lastName);
-            student.setPatronymic(patronymic);
-            student.getGroup().getStudents().remove(student);
-            student.setGroup(group);
-            student.setBirthDay(birthDay);
-            group.getStudents().add(student);
-            getEntityManager().merge(student);
-            getEntityManager().merge(group);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления студента в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+
+        student.setStudentId(studentNumber);
+        student.setFirstName(firstName);
+        student.setLastName(lastName);
+        student.setPatronymic(patronymic);
+        student.getGroup().getStudents().remove(student);
+        student.setGroup(group);
+        student.setBirthDay(birthDay);
+        group.getStudents().add(student);
+        entityManager.merge(student);
+        entityManager.merge(group);
     }
-
-    public void update(Student student) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().merge(student);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления факультета в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
-
-    public void put(Student student) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().persist(student);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка добавления факультета из бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
-    public void deleteStudent(Student student) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().remove(student);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка удаления студента из бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
 }

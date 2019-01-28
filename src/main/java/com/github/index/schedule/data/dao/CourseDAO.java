@@ -3,21 +3,13 @@ package com.github.index.schedule.data.dao;
 import com.github.index.schedule.data.entity.Course;
 import org.apache.log4j.Logger;
 
-import javax.ejb.Lock;
-import javax.ejb.LockType;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.index.schedule.utils.TransactionUtils.rollBackSilently;
-
 @Singleton
-@Startup
-@Lock(LockType.READ)
 public class CourseDAO extends AbstractDAO<Course, Integer> {
     private static final Logger LOGGER = Logger.getLogger(CourseDAO.class);
 
@@ -52,7 +44,7 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
 
     public List<Course> findIn(int start, int end) {
         try {
-            return getEntityManager().createQuery("SELECT с FROM Course с ORDER BY с.id").setFirstResult(start).setMaxResults(end).getResultList();
+            return entityManager.createQuery("SELECT с FROM Course с ORDER BY с.id").setFirstResult(start).setMaxResults(end).getResultList();
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса предметов по диапазону из бд", e);
         }
@@ -60,75 +52,21 @@ public class CourseDAO extends AbstractDAO<Course, Integer> {
     }
 
     public void createCourse(int id, String shortName, String fullName) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            Course course = new Course();
-            course.setId(id);
-            course.setShortName(shortName);
-            course.setFullName(fullName);
-            getEntityManager().persist(course);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка создания предмета в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
+
+        Course course = new Course();
+        course.setId(id);
+        course.setShortName(shortName);
+        course.setFullName(fullName);
+        entityManager.persist(course);
+
     }
 
     public void updateCourse(Course course, int id, String shortName, String fullName) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            course.setId(id);
-            course.setShortName(shortName);
-            course.setFullName(fullName);
-            getEntityManager().merge(course);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления предмета в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
 
-    public void update(Course course) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().merge(course);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка обновления предмета в бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
+        course.setId(id);
+        course.setShortName(shortName);
+        course.setFullName(fullName);
+        entityManager.merge(course);
 
-    public void put(Course course) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().persist(course);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка добавления предмета из бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
     }
-
-    public void deleteCourse(Course course) {
-        EntityTransaction transaction = getEntityManager().getTransaction();
-        try {
-            transaction.begin();
-            getEntityManager().remove(course);
-            transaction.commit();
-        } catch (Throwable throwable) {
-            LOGGER.error("Ошибка удаления предмета из бд", throwable);
-            rollBackSilently(transaction);
-            throw new RuntimeException(throwable);
-        }
-    }
-
 }
