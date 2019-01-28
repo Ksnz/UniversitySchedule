@@ -2,7 +2,6 @@ package com.github.index.schedule.data.entity;
 
 import com.github.index.schedule.converters.LocalDateAttributeConverter;
 import com.github.index.schedule.data.dao.*;
-import com.github.index.schedule.utils.TransactionUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePath;
@@ -14,7 +13,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
