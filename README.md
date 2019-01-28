@@ -25,7 +25,7 @@ Freemarker template, **jsp**, jsf, thymeleaf, mustache
 ## Сборка
 * Скопировать проект
 ```
-git clone https://github.com/Ksnz/UniversitySchedule.git 
+git clone -b tomee https://github.com/Ksnz/UniversitySchedule.git 
 cd UniversitySchedule
 ```
 * Собрать, запустить tomcat
