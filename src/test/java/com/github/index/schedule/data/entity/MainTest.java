@@ -32,8 +32,6 @@ public class MainTest {
                 .addPackage(StudentDAO.class.getPackage())
                 .addPackage(LocalDateAttributeConverter.class.getPackage())
                 .addPackage(Student.class.getPackage())
-                .addPackage(TransactionUtils.class.getPackage())
-                .addPackage(Student.class.getPackage())
                 .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
         for (JavaArchive lib : libs) {

@@ -56,16 +56,6 @@
                             <cargo.rmi.port>58091</cargo.rmi.port>
                             <cargo.tomcat.ajp.port>58092</cargo.tomcat.ajp.port>
                         </properties>
-                        <datasources>
-                            <datasource>
-                                <jndiName>jdbc/main</jndiName>
-                                <driverClass>org.postgresql.Driver</driverClass>
-                                <url>jdbc:postgresql://localhost:5432/schedule</url>
-                                <username>postgresql</username>
-                                <password>root</password>
-                                <id>main</id>
-                            </datasource>
-                        </datasources>
                     </configuration>
                     <deployables>
                         <deployable>
