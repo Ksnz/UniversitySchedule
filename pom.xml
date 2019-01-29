@@ -55,6 +55,7 @@
                             <cargo.servlet.port>58090</cargo.servlet.port>
                             <cargo.rmi.port>58091</cargo.rmi.port>
                             <cargo.tomcat.ajp.port>58092</cargo.tomcat.ajp.port>
+                            <cargo.jvmargs>-Dfile.encoding=UTF8</cargo.jvmargs>
                         </properties>
                     </configuration>
                     <deployables>

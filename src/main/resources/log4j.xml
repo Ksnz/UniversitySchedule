@@ -1,24 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="ALL">
-    <Appenders>
-        <Console name="WINDOWS_COMPAT" target="SYSTEM_OUT"></Console>
-        <Queue name="TerminalConsole">
-            <PatternLayout pattern="[%d{HH:mm:ss} %level]: %msg%n" />
-        </Queue>
-        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n" />
-            <Policies>
-                <TimeBasedTriggeringPolicy />
-                <OnStartupTriggeringPolicy />
-            </Policies>
-        </RollingRandomAccessFile>
-    </Appenders>
-    <Loggers>
-        <Root level="info">
-            <AppenderRef ref="WINDOWS_COMPAT" level="info"/>
-            <AppenderRef ref="File"/>
-            <AppenderRef ref="TerminalConsole" level="info"/>
-        </Root>
-    </Loggers>
-</Configuration>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="true" xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="demoApplication.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+        </layout>
+    </appender>
+
+    <root>
+        <priority value ="debug"></priority>
+        <appender-ref ref="console"></appender>
+        <appender-ref ref="fileAppender"></appender>
+    </root>
+</log4j:configuration>
