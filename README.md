@@ -23,23 +23,29 @@ Freemarker template, **jsp**, jsf, thymeleaf, mustache
 Предметы, имена преподавателей и студентов можно придумать или взять откуда то готовые
 
 ## Сборка
+###### Актуальная ветвь - tomee
 * Скопировать проект 
-* Для tomcat 8 без JTA
+* Для tomcat 8 без JTA (main)
 ```
 git clone https://github.com/Ksnz/UniversitySchedule.git 
 ```
-* Для tomee c JTA
+* Для tomee c JTA (tomee)
 ```
 git clone -b tomee https://github.com/Ksnz/UniversitySchedule.git
 ```
 ```
 cd UniversitySchedule
 ```
-* Собрать, запустить tomcat
+* Собрать,
+ ```
+ mvn clean install
+ ```
+ * запустить tomcat/tomee
 ```
 mvn install
 mvn cargo:run
 ```
+* Не забыть изменить настройки бд в `resources.xml` для ветки tomee или `persistence.xml` для main
 
 * [Открыть в браузере](http://localhost:58090/UniversitySchedule/)
 
