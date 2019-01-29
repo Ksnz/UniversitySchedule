@@ -6,10 +6,6 @@ import org.apache.log4j.Logger;
 
 import javax.ejb.Singleton;
 import javax.persistence.PersistenceException;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,22 +17,11 @@ public class AuditoriumDAO extends AbstractDAO<Auditorium, AuditoriumKey> {
 
     public long count() {
         try {
-            System.out.println("Тест");
-            System.out.println(findAll());
-            System.out.println(findAllCb());
             return super.count(Auditorium.class);
         } catch (PersistenceException e) {
             LOGGER.error("Ошибка запроса числа всех аудиторий из бд", e);
         }
         return 0;
-    }
-
-    public List<Auditorium> findAllCb() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Auditorium> cq = cb.createQuery(Auditorium.class);
-        Root<Auditorium> order = cq.from(Auditorium.class);
-        TypedQuery<Auditorium> q = entityManager.createQuery(cq);
-        return q.getResultList();
     }
 
     @Override
