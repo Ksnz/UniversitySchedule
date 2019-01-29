@@ -34,6 +34,6 @@ public abstract class AbstractDAO<T, K> implements BaseDAO<T, K> {
     }
 
     public void delete(T t) {
-        entityManager.remove(t);
+        entityManager.remove(entityManager.merge(t));
     }
 }
