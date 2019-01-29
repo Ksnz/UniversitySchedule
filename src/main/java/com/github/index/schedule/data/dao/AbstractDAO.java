@@ -1,14 +1,14 @@
 package com.github.index.schedule.data.dao;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
 
 public abstract class AbstractDAO<T, K> implements BaseDAO<T, K> {
 
-    @PersistenceContext(unitName = "SchedulePersistenceUnit")
+    @Inject
     EntityManager entityManager;
 
     protected long count(Class<T> tClass) {

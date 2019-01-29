@@ -144,11 +144,9 @@ public class LecturerServlet extends HttpServlet {
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
-                    //output.println("Ошибка загрузки файла: " + e.getLocalizedMessage());
                     LOGGER.warn("Ошибка чтения загруженного файла", e);
                     request.setAttribute("message", "Ошибка чтения файла: " + e.getLocalizedMessage());
                     path = "error.jsp";
-                    //path = "";
                 }
             }
         }

@@ -77,7 +77,6 @@ public class CourseServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         String action = request.getParameter("action");
-        //PrintWriter output = response.getWriter();
         String path = "courses.jsp";
         if (action != null) {
             Optional<Integer> courseId = getParameterIfPresent(request, "courseId", Integer.class);
@@ -135,11 +134,9 @@ public class CourseServlet extends HttpServlet {
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
-                    //output.println("Ошибка загрузки файла: " + e.getLocalizedMessage());
                     LOGGER.warn("Ошибка чтения загруженного файла", e);
                     request.setAttribute("message", "Ошибка чтения файла: " + e.getLocalizedMessage());
                     path = "error.jsp";
-                    //path = "";
                 }
             }
         }

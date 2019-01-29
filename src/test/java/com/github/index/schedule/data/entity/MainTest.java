@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -42,12 +43,15 @@ public class MainTest {
         return javaArchive;
     }
 
-    EntityManager entityManager;
+    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(null);
+
+    @Produces
+    public EntityManager create() {
+        return entityManagerFactory.createEntityManager();
+    }
 
     @org.junit.Before
     public void setUp() throws Exception {
-        EntityManagerFactory f = Persistence.createEntityManagerFactory("SchedulePersistenceUnitTest");
-        entityManager = f.createEntityManager();
         AuditoriumDAO auditoriumDAO = new AuditoriumDAO();
         for (int i = 1; i < 10; i++) {
             for (int j = 1; j < 6; j++) {

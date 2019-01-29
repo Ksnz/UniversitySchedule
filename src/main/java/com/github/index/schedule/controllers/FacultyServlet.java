@@ -79,7 +79,6 @@ public class FacultyServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         String action = request.getParameter("action");
-        //PrintWriter output = response.getWriter();
         String path = "faculties.jsp";
         if (action != null) {
             Optional<Character> characterId = getParameterIfPresent(request, "facultyId", Character.class);
@@ -137,7 +136,6 @@ public class FacultyServlet extends HttpServlet {
                         }
                     }
                 } catch (JAXBException | FileUploadException e) {
-                    //output.println("Ошибка загрузки файла: " + e.getLocalizedMessage());
                     LOGGER.warn("Ошибка чтения загруженного файла", e);
                     request.setAttribute("message", "Ошибка чтения файла: " + e.getLocalizedMessage());
                     path = "error.jsp";

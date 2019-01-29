@@ -16,8 +16,8 @@ import java.util.Collection;
 @Table(name = "lecturers")
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"scheduleEntries"})
-@ToString(exclude = {"scheduleEntries"})
+@EqualsAndHashCode(exclude = {"scheduleEntries"}, callSuper = true)
+@ToString(exclude = {"scheduleEntries"}, callSuper = true)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Lecturer extends Person {

@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "students")
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Student extends Person {

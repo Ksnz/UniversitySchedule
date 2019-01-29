@@ -66,15 +66,12 @@ public class AuditoriumServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher("auditoriums.jsp");
             view.forward(request, response);
         }
-        //entityManager.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-//        EntityManager entityManager = entityManagerFactory.createEntityManager();
-//        AuditoriumDAO auditoriumDAO = new AuditoriumDAO(entityManager);
         String action = request.getParameter("action");
         String path = "auditoriums.jsp";
         if (action != null) {
@@ -167,6 +164,5 @@ public class AuditoriumServlet extends HttpServlet {
             RequestDispatcher view = request.getRequestDispatcher(path);
             view.forward(request, response);
         }
-        //entityManager.close();
     }
 }
